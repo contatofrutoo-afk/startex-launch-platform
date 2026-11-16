@@ -16,6 +16,7 @@ import { Route as EntrarRouteImport } from './routes/entrar'
 import { Route as RecuperarSenhaRouteImport } from './routes/recuperar-senha'
 import { Route as RedefinirSenhaRouteImport } from './routes/redefinir-senha'
 import { Route as AuthenticatedTrilhasRouteImport } from './routes/_authenticated/trilhas'
+import { Route as AuthenticatedAulaIdRouteImport } from './routes/_authenticated/aula.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -51,6 +52,11 @@ const AuthenticatedTrilhasRoute = AuthenticatedTrilhasRouteImport.update({
   path: '/trilhas',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAulaIdRoute = AuthenticatedAulaIdRouteImport.update({
+  id: '/aula/$id',
+  path: '/aula/$id',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -59,6 +65,7 @@ export interface FileRoutesByFullPath {
   '/recuperar-senha': typeof RecuperarSenhaRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
   '/trilhas': typeof AuthenticatedTrilhasRoute
+  '/aula/$id': typeof AuthenticatedAulaIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -67,6 +74,7 @@ export interface FileRoutesByTo {
   '/recuperar-senha': typeof RecuperarSenhaRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
   '/trilhas': typeof AuthenticatedTrilhasRoute
+  '/aula/$id': typeof AuthenticatedAulaIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -77,6 +85,7 @@ export interface FileRoutesById {
   '/recuperar-senha': typeof RecuperarSenhaRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
   '/_authenticated/trilhas': typeof AuthenticatedTrilhasRoute
+  '/_authenticated/aula/$id': typeof AuthenticatedAulaIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -87,6 +96,7 @@ export interface FileRouteTypes {
     | '/recuperar-senha'
     | '/redefinir-senha'
     | '/trilhas'
+    | '/aula/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -95,6 +105,7 @@ export interface FileRouteTypes {
     | '/recuperar-senha'
     | '/redefinir-senha'
     | '/trilhas'
+    | '/aula/$id'
   id:
     | '__root__'
     | '/'
@@ -104,6 +115,7 @@ export interface FileRouteTypes {
     | '/recuperar-senha'
     | '/redefinir-senha'
     | '/_authenticated/trilhas'
+    | '/_authenticated/aula/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -166,15 +178,24 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTrilhasRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/aula/$id': {
+      id: '/_authenticated/aula/$id'
+      path: '/aula/$id'
+      fullPath: '/aula/$id'
+      preLoaderRoute: typeof AuthenticatedAulaIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedTrilhasRoute: typeof AuthenticatedTrilhasRoute
+  AuthenticatedAulaIdRoute: typeof AuthenticatedAulaIdRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedTrilhasRoute: AuthenticatedTrilhasRoute,
+  AuthenticatedAulaIdRoute: AuthenticatedAulaIdRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
