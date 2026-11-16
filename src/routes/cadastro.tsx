@@ -52,6 +52,7 @@ function CadastroPage() {
     });
     setLoading(false);
     if (error) {
+      console.error("[cadastro] signUp error", { code: error.code, message: error.message });
       toast.error(authErrorMessage(error));
       return;
     }
