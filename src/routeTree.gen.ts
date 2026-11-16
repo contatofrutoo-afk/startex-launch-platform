@@ -10,14 +10,20 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as CadastroRouteImport } from './routes/cadastro'
 import { Route as EntrarRouteImport } from './routes/entrar'
 import { Route as RecuperarSenhaRouteImport } from './routes/recuperar-senha'
 import { Route as RedefinirSenhaRouteImport } from './routes/redefinir-senha'
+import { Route as AuthenticatedTrilhasRouteImport } from './routes/_authenticated/trilhas'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CadastroRoute = CadastroRouteImport.update({
@@ -40,6 +46,11 @@ const RedefinirSenhaRoute = RedefinirSenhaRouteImport.update({
   path: '/redefinir-senha',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedTrilhasRoute = AuthenticatedTrilhasRouteImport.update({
+  id: '/trilhas',
+  path: '/trilhas',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -47,6 +58,7 @@ export interface FileRoutesByFullPath {
   '/entrar': typeof EntrarRoute
   '/recuperar-senha': typeof RecuperarSenhaRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
+  '/trilhas': typeof AuthenticatedTrilhasRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -54,32 +66,49 @@ export interface FileRoutesByTo {
   '/entrar': typeof EntrarRoute
   '/recuperar-senha': typeof RecuperarSenhaRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
+  '/trilhas': typeof AuthenticatedTrilhasRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/cadastro': typeof CadastroRoute
   '/entrar': typeof EntrarRoute
   '/recuperar-senha': typeof RecuperarSenhaRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
+  '/_authenticated/trilhas': typeof AuthenticatedTrilhasRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/cadastro' | '/entrar' | '/recuperar-senha' | '/redefinir-senha'
-  fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/cadastro' | '/entrar' | '/recuperar-senha' | '/redefinir-senha'
-  id:
-    | '__root__'
     | '/'
     | '/cadastro'
     | '/entrar'
     | '/recuperar-senha'
     | '/redefinir-senha'
+    | '/trilhas'
+  fileRoutesByTo: FileRoutesByTo
+  to:
+    | '/'
+    | '/cadastro'
+    | '/entrar'
+    | '/recuperar-senha'
+    | '/redefinir-senha'
+    | '/trilhas'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/cadastro'
+    | '/entrar'
+    | '/recuperar-senha'
+    | '/redefinir-senha'
+    | '/_authenticated/trilhas'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   CadastroRoute: typeof CadastroRoute
   EntrarRoute: typeof EntrarRoute
   RecuperarSenhaRoute: typeof RecuperarSenhaRoute
@@ -93,6 +122,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/cadastro': {
@@ -123,11 +159,30 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RedefinirSenhaRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/trilhas': {
+      id: '/_authenticated/trilhas'
+      path: '/trilhas'
+      fullPath: '/trilhas'
+      preLoaderRoute: typeof AuthenticatedTrilhasRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedTrilhasRoute: typeof AuthenticatedTrilhasRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedTrilhasRoute: AuthenticatedTrilhasRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   CadastroRoute: CadastroRoute,
   EntrarRoute: EntrarRoute,
   RecuperarSenhaRoute: RecuperarSenhaRoute,
