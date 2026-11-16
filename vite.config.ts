@@ -18,8 +18,15 @@ const realClientPath = fileURLToPath(
   new URL("./src/integrations/supabase/client.ts", import.meta.url),
 );
 
+function normalizePath(value: string): string {
+  return value.split("?")[0].replace(/\\/g, "/");
+}
+
+const realClientPathPosix = normalizePath(realClientPath);
+const realClientPathPosixNoExt = realClientPathPosix.replace(/\.ts$/, "");
+
 function isSupabaseClientSpecifier(source: string, importer?: string): boolean {
-  const cleanSource = source.split("?")[0];
+  const cleanSource = normalizePath(source);
   if (
     cleanSource === "@/integrations/supabase/client" ||
     cleanSource === "@/integrations/supabase/client.ts"
@@ -30,8 +37,7 @@ function isSupabaseClientSpecifier(source: string, importer?: string): boolean {
     cleanSource === "/src/integrations/supabase/client.ts"
   )
     return true;
-  if (cleanSource === realClientPath || cleanSource === realClientPath.replace(/\.ts$/, ""))
-    return true;
+  if (cleanSource === realClientPathPosix || cleanSource === realClientPathPosixNoExt) return true;
   if (cleanSource === "./client" && importer) {
     return /[\\/]src[\\/]integrations[\\/]supabase[\\/]auth-attacher\.ts$/.test(importer);
   }
@@ -39,10 +45,10 @@ function isSupabaseClientSpecifier(source: string, importer?: string): boolean {
 }
 
 function isRealClientId(id: string): boolean {
-  const cleanId = id.split("?")[0];
+  const cleanId = normalizePath(id);
   return (
-    cleanId === realClientPath ||
-    cleanId === realClientPath.replace(/\.ts$/, "") ||
+    cleanId === realClientPathPosix ||
+    cleanId === realClientPathPosixNoExt ||
     cleanId === "/src/integrations/supabase/client.ts" ||
     cleanId === "/src/integrations/supabase/client" ||
     cleanId === "@/integrations/supabase/client" ||
@@ -50,7 +56,7 @@ function isRealClientId(id: string): boolean {
   );
 }
 
-// Troca o client real pelo client simulado apenas quando rodando `vite dev --mode demo`.
+// Troca o client real pelo client simulado em dev/build quando mode = demo.
 const demoPlugin: Plugin = {
   name: "startex-demo-supabase-client",
   enforce: "pre",
@@ -66,16 +72,23 @@ const demoPlugin: Plugin = {
   },
 };
 
-const lovableConfig = defineLovableConfig({
+const baseConfig = {
   tanstackStart: {
     // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
     // nitro/vite builds from this
     server: { entry: "server" },
   },
+};
+
+const lovableConfig = defineLovableConfig(baseConfig);
+const lovableDemoConfig = defineLovableConfig({
+  ...baseConfig,
+  // Demo é apenas para preview local/teste; o build normal continua em Cloudflare.
+  nitro: { preset: "node-server" },
 });
 
 export default async (env: ConfigEnv) => {
-  const config = await lovableConfig(env);
+  const config = await (env.mode === "demo" ? lovableDemoConfig(env) : lovableConfig(env));
   if (env.mode !== "demo") return config;
   return { ...config, plugins: [demoPlugin, ...(config.plugins ?? [])] };
 };
