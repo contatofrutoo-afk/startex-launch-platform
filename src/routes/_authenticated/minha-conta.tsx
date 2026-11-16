@@ -104,7 +104,7 @@ function MinhaContaPage() {
               <div>
                 <Label htmlFor="nome">Nome</Label>
                 <Input id="nome" value={form.nome} onChange={(e) => setForm({ ...form, nome: e.target.value })} className="mt-1.5" />
-                <FieldError message={errors.nome} />
+                <FieldError message={errors["nome"]} />
               </div>
               <div>
                 <Label htmlFor="telefone">Telefone</Label>
@@ -116,7 +116,7 @@ function MinhaContaPage() {
                   onChange={(e) => setForm({ ...form, telefone: maskPhoneBR(e.target.value) })}
                   className="mt-1.5"
                 />
-                <FieldError message={errors.telefone} />
+                <FieldError message={errors["telefone"]} />
               </div>
               <div className="sm:col-span-2">
                 <Label>E-mail</Label>

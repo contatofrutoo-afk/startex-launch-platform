@@ -40,7 +40,7 @@ async function fetchMember(): Promise<Member | null> {
   return {
     userId: user.id,
     email: profile?.email || user.email || "",
-    nome: profile?.nome || (user.user_metadata?.nome as string | undefined) || "",
+    nome: profile?.nome || (user.user_metadata?.["nome"] as string | undefined) || "",
     telefone: profile?.telefone ?? "",
     aceiteTermosEm: profile?.aceite_termos_em ?? null,
     criadoEm: profile?.created_at ?? user.created_at,

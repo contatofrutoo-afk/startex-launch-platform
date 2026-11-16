@@ -1,4 +1,4 @@
-export function authErrorMessage(error: { message?: string; code?: string } | null | undefined): string {
+export function authErrorMessage(error: { message?: string | undefined; code?: string | undefined } | null | undefined): string {
   const msg = (error?.message ?? "").toLowerCase();
   if (msg.includes("invalid login credentials")) return "E-mail ou senha incorretos.";
   if (msg.includes("already registered") || msg.includes("already been registered") || error?.code === "user_already_exists")

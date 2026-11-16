@@ -81,7 +81,7 @@ function RedefinirSenhaPage() {
               onChange={(e) => setForm({ ...form, senha: e.target.value })}
               className="mt-1.5"
             />
-            <FieldError message={errors.senha} />
+            <FieldError message={errors["senha"]} />
           </div>
           <div>
             <Label htmlFor="confirmar">Confirmar senha</Label>
@@ -93,7 +93,7 @@ function RedefinirSenhaPage() {
               onChange={(e) => setForm({ ...form, confirmar: e.target.value })}
               className="mt-1.5"
             />
-            <FieldError message={errors.confirmar} />
+            <FieldError message={errors["confirmar"]} />
           </div>
           <Button type="submit" variant="hero" size="lg" className="w-full" disabled={loading}>
             {loading && <Loader2 className="animate-spin" />} Salvar nova senha

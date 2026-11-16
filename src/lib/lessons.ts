@@ -12,7 +12,7 @@ export function youtubeId(url: string | null | undefined): string | null {
     if (host === "youtube.com" || host === "youtube-nocookie.com") {
       if (u.pathname === "/watch") return u.searchParams.get("v");
       const m = u.pathname.match(/^\/(embed|shorts|live|v)\/([^/?#]+)/);
-      if (m) return m[2];
+      if (m) return m[2] ?? null;
     }
   } catch {
     return null;

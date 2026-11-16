@@ -79,7 +79,7 @@ function EntrarPage() {
             onChange={(e) => setForm({ ...form, email: e.target.value })}
             className="mt-1.5"
           />
-          <FieldError message={errors.email} />
+          <FieldError message={errors["email"]} />
         </div>
         <div>
           <div className="flex items-center justify-between">
@@ -96,7 +96,7 @@ function EntrarPage() {
             onChange={(e) => setForm({ ...form, senha: e.target.value })}
             className="mt-1.5"
           />
-          <FieldError message={errors.senha} />
+          <FieldError message={errors["senha"]} />
         </div>
         <Button type="submit" variant="hero" size="lg" className="w-full" disabled={loading}>
           {loading && <Loader2 className="animate-spin" />} Entrar

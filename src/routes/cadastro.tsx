@@ -86,7 +86,7 @@ function CadastroPage() {
             onChange={(e) => setForm({ ...form, nome: e.target.value })}
             className="mt-1.5"
           />
-          <FieldError message={errors.nome} />
+          <FieldError message={errors["nome"]} />
         </div>
         <div>
           <Label htmlFor="email">E-mail</Label>
@@ -98,7 +98,7 @@ function CadastroPage() {
             onChange={(e) => setForm({ ...form, email: e.target.value })}
             className="mt-1.5"
           />
-          <FieldError message={errors.email} />
+          <FieldError message={errors["email"]} />
         </div>
         <div>
           <Label htmlFor="telefone">Telefone</Label>
@@ -112,7 +112,7 @@ function CadastroPage() {
             onChange={(e) => setForm({ ...form, telefone: maskPhoneBR(e.target.value) })}
             className="mt-1.5"
           />
-          <FieldError message={errors.telefone} />
+          <FieldError message={errors["telefone"]} />
         </div>
         <div>
           <Label htmlFor="senha">Senha</Label>
@@ -125,7 +125,7 @@ function CadastroPage() {
             className="mt-1.5"
           />
           <p className="mt-1 text-xs text-muted-foreground">Mínimo de {PASSWORD_MIN_LENGTH} caracteres.</p>
-          <FieldError message={errors.senha} />
+          <FieldError message={errors["senha"]} />
         </div>
         <div>
           <div className="flex items-start gap-3">
@@ -147,7 +147,7 @@ function CadastroPage() {
               .
             </Label>
           </div>
-          <FieldError message={errors.aceite} />
+          <FieldError message={errors["aceite"]} />
         </div>
         <Button type="submit" variant="hero" size="lg" className="w-full" disabled={loading}>
           {loading && <Loader2 className="animate-spin" />} Criar conta
