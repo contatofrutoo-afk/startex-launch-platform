@@ -14,16 +14,268 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      lesson_media: {
+        Row: {
+          lesson_id: string
+          materials: Json
+          source_type: string
+          updated_at: string
+          video_path: string | null
+          youtube_url: string | null
+        }
+        Insert: {
+          lesson_id: string
+          materials?: Json
+          source_type?: string
+          updated_at?: string
+          video_path?: string | null
+          youtube_url?: string | null
+        }
+        Update: {
+          lesson_id?: string
+          materials?: Json
+          source_type?: string
+          updated_at?: string
+          video_path?: string | null
+          youtube_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lesson_media_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: true
+            referencedRelation: "lessons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lesson_progress: {
+        Row: {
+          completed: boolean
+          lesson_id: string
+          progress_percent: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed?: boolean
+          lesson_id: string
+          progress_percent?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed?: boolean
+          lesson_id?: string
+          progress_percent?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lesson_progress_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "lessons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lessons: {
+        Row: {
+          created_at: string
+          description: string
+          duration_seconds: number
+          id: string
+          is_free_preview: boolean
+          is_sample: boolean
+          position: number
+          published: boolean
+          thumbnail_url: string | null
+          title: string
+          track_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string
+          duration_seconds?: number
+          id?: string
+          is_free_preview?: boolean
+          is_sample?: boolean
+          position?: number
+          published?: boolean
+          thumbnail_url?: string | null
+          title: string
+          track_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          duration_seconds?: number
+          id?: string
+          is_free_preview?: boolean
+          is_sample?: boolean
+          position?: number
+          published?: boolean
+          thumbnail_url?: string | null
+          title?: string
+          track_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lessons_track_id_fkey"
+            columns: ["track_id"]
+            isOneToOne: false
+            referencedRelation: "tracks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          aceite_termos_em: string | null
+          created_at: string
+          email: string
+          id: string
+          nome: string
+          telefone: string
+          updated_at: string
+        }
+        Insert: {
+          aceite_termos_em?: string | null
+          created_at?: string
+          email?: string
+          id: string
+          nome?: string
+          telefone?: string
+          updated_at?: string
+        }
+        Update: {
+          aceite_termos_em?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          nome?: string
+          telefone?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      subscriptions: {
+        Row: {
+          acesso_manual: boolean
+          created_at: string
+          current_period_end: string | null
+          id: string
+          provider: string | null
+          provider_customer_id: string | null
+          provider_subscription_id: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          acesso_manual?: boolean
+          created_at?: string
+          current_period_end?: string | null
+          id?: string
+          provider?: string | null
+          provider_customer_id?: string | null
+          provider_subscription_id?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          acesso_manual?: boolean
+          created_at?: string
+          current_period_end?: string | null
+          id?: string
+          provider?: string | null
+          provider_customer_id?: string | null
+          provider_subscription_id?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      tracks: {
+        Row: {
+          cover_url: string | null
+          created_at: string
+          description: string
+          id: string
+          is_sample: boolean
+          position: number
+          published: boolean
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          cover_url?: string | null
+          created_at?: string
+          description?: string
+          id?: string
+          is_sample?: boolean
+          position?: number
+          published?: boolean
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          cover_url?: string | null
+          created_at?: string
+          description?: string
+          id?: string
+          is_sample?: boolean
+          position?: number
+          published?: boolean
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_active_access: { Args: { _user_id: string }; Returns: boolean }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "member"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +402,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "member"],
+    },
   },
 } as const
