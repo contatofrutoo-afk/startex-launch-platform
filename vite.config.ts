@@ -7,12 +7,75 @@
 // the build fails. Never add compression (compressPublicAssets, vite-plugin-compression):
 // hosting already compresses at the edge.
 // You can pass additional config via defineConfig({ vite: { ... }, etc... }) if needed.
-import { defineConfig } from "@lovable.dev/vite-tanstack-config";
+import { defineConfig as defineLovableConfig } from "@lovable.dev/vite-tanstack-config";
+import { fileURLToPath } from "node:url";
+import type { ConfigEnv, Plugin } from "vite";
 
-export default defineConfig({
+const demoClientPath = fileURLToPath(
+  new URL("./src/integrations/supabase/demo-client.ts", import.meta.url),
+);
+const realClientPath = fileURLToPath(
+  new URL("./src/integrations/supabase/client.ts", import.meta.url),
+);
+
+function isSupabaseClientSpecifier(source: string, importer?: string): boolean {
+  const cleanSource = source.split("?")[0];
+  if (
+    cleanSource === "@/integrations/supabase/client" ||
+    cleanSource === "@/integrations/supabase/client.ts"
+  )
+    return true;
+  if (
+    cleanSource === "/src/integrations/supabase/client" ||
+    cleanSource === "/src/integrations/supabase/client.ts"
+  )
+    return true;
+  if (cleanSource === realClientPath || cleanSource === realClientPath.replace(/\.ts$/, ""))
+    return true;
+  if (cleanSource === "./client" && importer) {
+    return /[\\/]src[\\/]integrations[\\/]supabase[\\/]auth-attacher\.ts$/.test(importer);
+  }
+  return false;
+}
+
+function isRealClientId(id: string): boolean {
+  const cleanId = id.split("?")[0];
+  return (
+    cleanId === realClientPath ||
+    cleanId === realClientPath.replace(/\.ts$/, "") ||
+    cleanId === "/src/integrations/supabase/client.ts" ||
+    cleanId === "/src/integrations/supabase/client" ||
+    cleanId === "@/integrations/supabase/client" ||
+    cleanId === "@/integrations/supabase/client.ts"
+  );
+}
+
+// Troca o client real pelo client simulado apenas quando rodando `vite dev --mode demo`.
+const demoPlugin: Plugin = {
+  name: "startex-demo-supabase-client",
+  enforce: "pre",
+  resolveId(source, importer) {
+    if (isSupabaseClientSpecifier(source, importer)) return demoClientPath;
+    return null;
+  },
+  // O alias/tsconfig-paths resolve "@/integrations/supabase/client" antes deste plugin.
+  // Nesses casos o id final é o client real, então trocamos o conteúdo para o demo client.
+  load(id) {
+    if (isRealClientId(id)) return 'export { supabase } from "./demo-client.ts";\n';
+    return null;
+  },
+};
+
+const lovableConfig = defineLovableConfig({
   tanstackStart: {
     // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
     // nitro/vite builds from this
     server: { entry: "server" },
   },
 });
+
+export default async (env: ConfigEnv) => {
+  const config = await lovableConfig(env);
+  if (env.mode !== "demo") return config;
+  return { ...config, plugins: [demoPlugin, ...(config.plugins ?? [])] };
+};

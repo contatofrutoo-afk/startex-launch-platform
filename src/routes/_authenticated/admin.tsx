@@ -129,10 +129,22 @@ function slugify(s: string) {
 }
 
 async function uploadWithProgress(bucket: string, path: string, file: File, onProgress: (p: number) => void) {
-  const url = `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/${bucket}/${path.split("/").map(encodeURIComponent).join("/")}`;
+  if (import.meta.env.MODE === "demo") {
+    await new Promise((resolve) => setTimeout(resolve, 350));
+    onProgress(100);
+    const covers = [
+      "/images/exemplo/trilha-fundamentos.jpg",
+      "/images/exemplo/trilha-financas.jpg",
+      "/images/exemplo/trilha-vendas.jpg",
+    ];
+    const isImage = file.type.startsWith("image/") || /\.(png|jpe?g|webp|gif|svg)$/i.test(file.name);
+    const publicUrl = isImage ? (covers[path.length % covers.length] ?? covers[0] ?? path) : path;
+    return { path, publicUrl };
+  }
+  const url = `${import.meta.env["VITE_SUPABASE_URL"]}/storage/v1/object/${bucket}/${path.split("/").map(encodeURIComponent).join("/")}`;
   const { data: sessionData } = await supabase.auth.getSession();
   const token = sessionData.session?.access_token;
-  const apikey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string;
+  const apikey = import.meta.env["VITE_SUPABASE_PUBLISHABLE_KEY"] as string;
   await new Promise<void>((resolve, reject) => {
     const xhr = new XMLHttpRequest();
     xhr.open("POST", url);
@@ -1006,8 +1018,10 @@ function AdminOrders() {
       if (userIds.length === 0) return orders;
       const { data: profiles, error: profilesError } = await (supabase as any).from("profiles").select("id, email, nome").in("id", userIds);
       if (profilesError) throw profilesError;
-      const byId = new Map((profiles ?? []).map((p: any) => [p.id, p]));
-      return orders.map((o) => ({ ...o, profile: byId.get(o.user_id) ?? null }));
+      const byId = new Map<string, NonNullable<AdminOrder["profile"]>>(
+        (profiles ?? []).map((p: any) => [p.id, p]),
+      );
+      return orders.map((o) => ({ ...o, profile: byId.get(o.user_id) ?? null })) as AdminOrder[];
     },
   });
 

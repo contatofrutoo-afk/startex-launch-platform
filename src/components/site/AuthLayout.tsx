@@ -22,6 +22,12 @@ export function AuthLayout({
       <div className="relative w-full max-w-md rounded-2xl border border-border bg-card p-6 shadow-card sm:p-8">
         <h1 className="text-2xl font-bold">{title}</h1>
         {subtitle && <p className="mt-1 text-sm text-muted-foreground">{subtitle}</p>}
+        {import.meta.env.MODE === "demo" && (
+          <div className="mt-4 rounded-lg border border-primary/30 bg-primary/10 px-3 py-2 text-sm text-primary">
+            Modo demonstração: qualquer e-mail e senha entram. Você já inicia logado como
+            administrador.
+          </div>
+        )}
         <div className="mt-6">{children}</div>
       </div>
       {footer && <div className="relative mt-6 text-sm text-muted-foreground">{footer}</div>}

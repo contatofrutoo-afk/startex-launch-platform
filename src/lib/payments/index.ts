@@ -19,7 +19,7 @@ export interface PaymentAdapter {
 export const STRIPE_PRICE_SUBSCRIPTION_BRL_297 = "price_startex_297_brl_monthly"; // configurar no Stripe/Lovable Secrets
 
 export function paymentsConfigured(): boolean {
-  return Boolean(import.meta.env["VITE_STRIPE_PUBLISHABLE_KEY"]);
+  return import.meta.env.MODE === "demo" || Boolean(import.meta.env["VITE_STRIPE_PUBLISHABLE_KEY"]);
 }
 
 export const stripeAdapter: PaymentAdapter = {

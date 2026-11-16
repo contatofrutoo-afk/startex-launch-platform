@@ -30,6 +30,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const { data: member } = useMember();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const demo = import.meta.env.MODE === "demo";
 
   async function handleSignOut() {
     setOpen(false);
@@ -44,6 +45,11 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="min-h-screen bg-background">
+      {demo && (
+        <div className="border-b border-primary/30 bg-primary/10 px-4 py-2 text-center text-xs font-medium text-primary">
+          Modo demonstração local — dados fictícios. Todas as telas estão liberadas.
+        </div>
+      )}
       <header className="sticky top-0 z-40 border-b border-border/50 bg-background/85 backdrop-blur-lg">
         <div className="mx-auto flex h-16 max-w-[1400px] items-center justify-between px-4 sm:px-8">
           <Link to="/trilhas" aria-label="Startex — trilhas">
