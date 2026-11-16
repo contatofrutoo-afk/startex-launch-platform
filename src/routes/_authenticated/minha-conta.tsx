@@ -1,7 +1,7 @@
-import { useEffect, useState, type FormEvent } from "react";
+﻿import { useEffect, useState, type FormEvent } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { Loader2 } from "lucide-react";
+import { CreditCard, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { memberQueryKey, useMember, type Member } from "@/hooks/use-member";
 import { formatDateSP, formatDateTimeSP, maskPhoneBR } from "@/lib/format";
 import { fieldErrors } from "@/lib/validation";
+import { getPaymentAdapter } from "@/lib/payments";
 
 export const Route = createFileRoute("/_authenticated/minha-conta")({
   head: () => ({
@@ -54,6 +55,7 @@ function MinhaContaPage() {
   const [form, setForm] = useState({ nome: "", telefone: "" });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
+  const [portalLoading, setPortalLoading] = useState(false);
 
   useEffect(() => {
     if (member) setForm({ nome: member.nome, telefone: maskPhoneBR(member.telefone) });
@@ -82,6 +84,19 @@ function MinhaContaPage() {
     queryClient.invalidateQueries({ queryKey: memberQueryKey });
   }
 
+  async function openPortal() {
+    setPortalLoading(true);
+    try {
+      const adapter = getPaymentAdapter();
+      if (!adapter.openCustomerPortal) return;
+      const res = await adapter.openCustomerPortal(`${window.location.origin}/minha-conta`);
+      if ("unavailable" in res) toast.info(res.message);
+      else window.location.href = res.url;
+    } finally {
+      setPortalLoading(false);
+    }
+  }
+
   return (
     <PageContainer>
       <h1 className="text-3xl font-bold sm:text-4xl">Minha conta</h1>
@@ -95,7 +110,15 @@ function MinhaContaPage() {
           <section className="rounded-2xl border border-border bg-card p-6">
             <h2 className="text-lg font-semibold">Assinatura</h2>
             <p className="mt-2 text-muted-foreground">{subscriptionLabel(member)}</p>
-            {!member.hasAccess && <SubscribeButton className="mt-4" />}
+            <div className="mt-4 flex flex-wrap gap-2">
+              {!member.hasAccess && <SubscribeButton />}
+              {member.subscription && !member.subscription.acesso_manual && (
+                <Button variant="outline" onClick={openPortal} disabled={portalLoading}>
+                  <CreditCard className="size-4" /> {portalLoading ? "Abrindo..." : "Gerenciar/cancelar assinatura (portal Stripe)"}
+                </Button>
+              )}
+            </div>
+            <p className="mt-3 text-xs text-muted-foreground">Cancelamento e atualização de cartão via Portal do Cliente Stripe (quando configurado). Cancele quando quiser; acesso até o fim do período pago.</p>
           </section>
 
           <section className="rounded-2xl border border-border bg-card p-6">

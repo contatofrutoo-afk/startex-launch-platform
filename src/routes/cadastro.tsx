@@ -56,7 +56,9 @@ function CadastroPage() {
       return;
     }
     if (!data.session) {
-      toast.success("Conta criada! Confira seu e-mail para confirmar o cadastro.");
+      toast.error(
+        "Conta criada, mas o acesso direto requer que a confirmação de e-mail esteja desativada no Lovable Cloud (Auth). Peça para desativar a verificação de e-mail e tente entrar.",
+      );
       return;
     }
     toast.success("Conta criada! Boas-vindas à Startex.");

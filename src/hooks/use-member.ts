@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { ADMIN_OWNER_EMAIL } from "@/lib/owner";
 
 export type Member = {
   userId: string;
@@ -37,6 +38,9 @@ async function fetchMember(): Promise<Member | null> {
   if (profileRes.error) throw profileRes.error;
 
   const profile = profileRes.data;
+  const email = (profile?.email || user.email || "").trim().toLowerCase();
+  const isOwner = email === ADMIN_OWNER_EMAIL.toLowerCase();
+  const isAdmin = isOwner || (rolesRes.data ?? []).some((r) => r.role === "admin");
   return {
     userId: user.id,
     email: profile?.email || user.email || "",
@@ -44,8 +48,8 @@ async function fetchMember(): Promise<Member | null> {
     telefone: profile?.telefone ?? "",
     aceiteTermosEm: profile?.aceite_termos_em ?? null,
     criadoEm: profile?.created_at ?? user.created_at,
-    isAdmin: (rolesRes.data ?? []).some((r) => r.role === "admin"),
-    hasAccess: accessRes.data === true,
+    isAdmin,
+    hasAccess: isAdmin || accessRes.data === true,
     subscription: subRes.data ?? null,
   };
 }

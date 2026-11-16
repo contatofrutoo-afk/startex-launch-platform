@@ -24,6 +24,7 @@ import { Route as AuthenticatedMeusProdutosRouteImport } from './routes/_authent
 import { Route as AuthenticatedMinhaContaRouteImport } from './routes/_authenticated/minha-conta'
 import { Route as AuthenticatedTrilhasRouteImport } from './routes/_authenticated/trilhas'
 import { Route as AuthenticatedAulaIdRouteImport } from './routes/_authenticated/aula.$id'
+import { Route as AuthenticatedLojaSlugRouteImport } from './routes/_authenticated/loja.$slug'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -100,6 +101,11 @@ const AuthenticatedAulaIdRoute = AuthenticatedAulaIdRouteImport.update({
   path: '/aula/$id',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedLojaSlugRoute = AuthenticatedLojaSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => AuthenticatedLojaRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -111,11 +117,12 @@ export interface FileRoutesByFullPath {
   '/termos': typeof TermosRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/lives': typeof AuthenticatedLivesRoute
-  '/loja': typeof AuthenticatedLojaRoute
+  '/loja': typeof AuthenticatedLojaRouteWithChildren
   '/meus-produtos': typeof AuthenticatedMeusProdutosRoute
   '/minha-conta': typeof AuthenticatedMinhaContaRoute
   '/trilhas': typeof AuthenticatedTrilhasRoute
   '/aula/$id': typeof AuthenticatedAulaIdRoute
+  '/loja/$slug': typeof AuthenticatedLojaSlugRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -127,11 +134,12 @@ export interface FileRoutesByTo {
   '/termos': typeof TermosRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/lives': typeof AuthenticatedLivesRoute
-  '/loja': typeof AuthenticatedLojaRoute
+  '/loja': typeof AuthenticatedLojaRouteWithChildren
   '/meus-produtos': typeof AuthenticatedMeusProdutosRoute
   '/minha-conta': typeof AuthenticatedMinhaContaRoute
   '/trilhas': typeof AuthenticatedTrilhasRoute
   '/aula/$id': typeof AuthenticatedAulaIdRoute
+  '/loja/$slug': typeof AuthenticatedLojaSlugRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -145,11 +153,12 @@ export interface FileRoutesById {
   '/termos': typeof TermosRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/lives': typeof AuthenticatedLivesRoute
-  '/_authenticated/loja': typeof AuthenticatedLojaRoute
+  '/_authenticated/loja': typeof AuthenticatedLojaRouteWithChildren
   '/_authenticated/meus-produtos': typeof AuthenticatedMeusProdutosRoute
   '/_authenticated/minha-conta': typeof AuthenticatedMinhaContaRoute
   '/_authenticated/trilhas': typeof AuthenticatedTrilhasRoute
   '/_authenticated/aula/$id': typeof AuthenticatedAulaIdRoute
+  '/_authenticated/loja/$slug': typeof AuthenticatedLojaSlugRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -168,6 +177,7 @@ export interface FileRouteTypes {
     | '/minha-conta'
     | '/trilhas'
     | '/aula/$id'
+    | '/loja/$slug'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -184,6 +194,7 @@ export interface FileRouteTypes {
     | '/minha-conta'
     | '/trilhas'
     | '/aula/$id'
+    | '/loja/$slug'
   id:
     | '__root__'
     | '/'
@@ -201,6 +212,7 @@ export interface FileRouteTypes {
     | '/_authenticated/minha-conta'
     | '/_authenticated/trilhas'
     | '/_authenticated/aula/$id'
+    | '/_authenticated/loja/$slug'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -321,13 +333,31 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAulaIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/loja/$slug': {
+      id: '/_authenticated/loja/$slug'
+      path: '/$slug'
+      fullPath: '/loja/$slug'
+      preLoaderRoute: typeof AuthenticatedLojaSlugRouteImport
+      parentRoute: typeof AuthenticatedLojaRoute
+    }
   }
 }
+
+interface AuthenticatedLojaRouteChildren {
+  AuthenticatedLojaSlugRoute: typeof AuthenticatedLojaSlugRoute
+}
+
+const AuthenticatedLojaRouteChildren: AuthenticatedLojaRouteChildren = {
+  AuthenticatedLojaSlugRoute: AuthenticatedLojaSlugRoute,
+}
+
+const AuthenticatedLojaRouteWithChildren =
+  AuthenticatedLojaRoute._addFileChildren(AuthenticatedLojaRouteChildren)
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
   AuthenticatedLivesRoute: typeof AuthenticatedLivesRoute
-  AuthenticatedLojaRoute: typeof AuthenticatedLojaRoute
+  AuthenticatedLojaRoute: typeof AuthenticatedLojaRouteWithChildren
   AuthenticatedMeusProdutosRoute: typeof AuthenticatedMeusProdutosRoute
   AuthenticatedMinhaContaRoute: typeof AuthenticatedMinhaContaRoute
   AuthenticatedTrilhasRoute: typeof AuthenticatedTrilhasRoute
@@ -337,7 +367,7 @@ interface AuthenticatedRouteRouteChildren {
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
   AuthenticatedLivesRoute: AuthenticatedLivesRoute,
-  AuthenticatedLojaRoute: AuthenticatedLojaRoute,
+  AuthenticatedLojaRoute: AuthenticatedLojaRouteWithChildren,
   AuthenticatedMeusProdutosRoute: AuthenticatedMeusProdutosRoute,
   AuthenticatedMinhaContaRoute: AuthenticatedMinhaContaRoute,
   AuthenticatedTrilhasRoute: AuthenticatedTrilhasRoute,
