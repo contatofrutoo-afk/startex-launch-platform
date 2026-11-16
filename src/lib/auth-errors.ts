@@ -11,6 +11,8 @@ export function authErrorMessage(error: { message?: string | undefined; code?: s
   if (msg.includes("email not confirmed")) return "Confirme seu e-mail antes de entrar.";
   if (msg.includes("signups not allowed") || code === "signup_disabled")
     return "Novos cadastros estão temporariamente desativados.";
+  if (msg.includes("email signups are disabled") || code === "email_provider_disabled")
+    return "O cadastro por e-mail está desativado no momento. Ative o provedor Email no Lovable Cloud (Auth > Providers).";
   if (msg.includes("database error saving new user") || msg.includes("unexpected_failure"))
     return "Não foi possível criar sua conta (erro no servidor/banco). Verifique se o banco e o gatilho de perfil estão configurados no Lovable Cloud.";
   if (msg.includes("invalid email")) return "Informe um e-mail válido.";
