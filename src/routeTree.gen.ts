@@ -15,6 +15,11 @@ import { Route as CadastroRouteImport } from './routes/cadastro'
 import { Route as EntrarRouteImport } from './routes/entrar'
 import { Route as RecuperarSenhaRouteImport } from './routes/recuperar-senha'
 import { Route as RedefinirSenhaRouteImport } from './routes/redefinir-senha'
+import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as AuthenticatedLivesRouteImport } from './routes/_authenticated/lives'
+import { Route as AuthenticatedLojaRouteImport } from './routes/_authenticated/loja'
+import { Route as AuthenticatedMeusProdutosRouteImport } from './routes/_authenticated/meus-produtos'
+import { Route as AuthenticatedMinhaContaRouteImport } from './routes/_authenticated/minha-conta'
 import { Route as AuthenticatedTrilhasRouteImport } from './routes/_authenticated/trilhas'
 import { Route as AuthenticatedAulaIdRouteImport } from './routes/_authenticated/aula.$id'
 
@@ -47,6 +52,32 @@ const RedefinirSenhaRoute = RedefinirSenhaRouteImport.update({
   path: '/redefinir-senha',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedLivesRoute = AuthenticatedLivesRouteImport.update({
+  id: '/lives',
+  path: '/lives',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedLojaRoute = AuthenticatedLojaRouteImport.update({
+  id: '/loja',
+  path: '/loja',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedMeusProdutosRoute =
+  AuthenticatedMeusProdutosRouteImport.update({
+    id: '/meus-produtos',
+    path: '/meus-produtos',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedMinhaContaRoute = AuthenticatedMinhaContaRouteImport.update({
+  id: '/minha-conta',
+  path: '/minha-conta',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedTrilhasRoute = AuthenticatedTrilhasRouteImport.update({
   id: '/trilhas',
   path: '/trilhas',
@@ -64,6 +95,11 @@ export interface FileRoutesByFullPath {
   '/entrar': typeof EntrarRoute
   '/recuperar-senha': typeof RecuperarSenhaRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
+  '/admin': typeof AuthenticatedAdminRoute
+  '/lives': typeof AuthenticatedLivesRoute
+  '/loja': typeof AuthenticatedLojaRoute
+  '/meus-produtos': typeof AuthenticatedMeusProdutosRoute
+  '/minha-conta': typeof AuthenticatedMinhaContaRoute
   '/trilhas': typeof AuthenticatedTrilhasRoute
   '/aula/$id': typeof AuthenticatedAulaIdRoute
 }
@@ -73,6 +109,11 @@ export interface FileRoutesByTo {
   '/entrar': typeof EntrarRoute
   '/recuperar-senha': typeof RecuperarSenhaRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
+  '/admin': typeof AuthenticatedAdminRoute
+  '/lives': typeof AuthenticatedLivesRoute
+  '/loja': typeof AuthenticatedLojaRoute
+  '/meus-produtos': typeof AuthenticatedMeusProdutosRoute
+  '/minha-conta': typeof AuthenticatedMinhaContaRoute
   '/trilhas': typeof AuthenticatedTrilhasRoute
   '/aula/$id': typeof AuthenticatedAulaIdRoute
 }
@@ -84,6 +125,11 @@ export interface FileRoutesById {
   '/entrar': typeof EntrarRoute
   '/recuperar-senha': typeof RecuperarSenhaRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
+  '/_authenticated/admin': typeof AuthenticatedAdminRoute
+  '/_authenticated/lives': typeof AuthenticatedLivesRoute
+  '/_authenticated/loja': typeof AuthenticatedLojaRoute
+  '/_authenticated/meus-produtos': typeof AuthenticatedMeusProdutosRoute
+  '/_authenticated/minha-conta': typeof AuthenticatedMinhaContaRoute
   '/_authenticated/trilhas': typeof AuthenticatedTrilhasRoute
   '/_authenticated/aula/$id': typeof AuthenticatedAulaIdRoute
 }
@@ -95,6 +141,11 @@ export interface FileRouteTypes {
     | '/entrar'
     | '/recuperar-senha'
     | '/redefinir-senha'
+    | '/admin'
+    | '/lives'
+    | '/loja'
+    | '/meus-produtos'
+    | '/minha-conta'
     | '/trilhas'
     | '/aula/$id'
   fileRoutesByTo: FileRoutesByTo
@@ -104,6 +155,11 @@ export interface FileRouteTypes {
     | '/entrar'
     | '/recuperar-senha'
     | '/redefinir-senha'
+    | '/admin'
+    | '/lives'
+    | '/loja'
+    | '/meus-produtos'
+    | '/minha-conta'
     | '/trilhas'
     | '/aula/$id'
   id:
@@ -114,6 +170,11 @@ export interface FileRouteTypes {
     | '/entrar'
     | '/recuperar-senha'
     | '/redefinir-senha'
+    | '/_authenticated/admin'
+    | '/_authenticated/lives'
+    | '/_authenticated/loja'
+    | '/_authenticated/meus-produtos'
+    | '/_authenticated/minha-conta'
     | '/_authenticated/trilhas'
     | '/_authenticated/aula/$id'
   fileRoutesById: FileRoutesById
@@ -171,6 +232,41 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RedefinirSenhaRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/admin': {
+      id: '/_authenticated/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AuthenticatedAdminRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/lives': {
+      id: '/_authenticated/lives'
+      path: '/lives'
+      fullPath: '/lives'
+      preLoaderRoute: typeof AuthenticatedLivesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/loja': {
+      id: '/_authenticated/loja'
+      path: '/loja'
+      fullPath: '/loja'
+      preLoaderRoute: typeof AuthenticatedLojaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/meus-produtos': {
+      id: '/_authenticated/meus-produtos'
+      path: '/meus-produtos'
+      fullPath: '/meus-produtos'
+      preLoaderRoute: typeof AuthenticatedMeusProdutosRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/minha-conta': {
+      id: '/_authenticated/minha-conta'
+      path: '/minha-conta'
+      fullPath: '/minha-conta'
+      preLoaderRoute: typeof AuthenticatedMinhaContaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/trilhas': {
       id: '/_authenticated/trilhas'
       path: '/trilhas'
@@ -189,11 +285,21 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
+  AuthenticatedLivesRoute: typeof AuthenticatedLivesRoute
+  AuthenticatedLojaRoute: typeof AuthenticatedLojaRoute
+  AuthenticatedMeusProdutosRoute: typeof AuthenticatedMeusProdutosRoute
+  AuthenticatedMinhaContaRoute: typeof AuthenticatedMinhaContaRoute
   AuthenticatedTrilhasRoute: typeof AuthenticatedTrilhasRoute
   AuthenticatedAulaIdRoute: typeof AuthenticatedAulaIdRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAdminRoute: AuthenticatedAdminRoute,
+  AuthenticatedLivesRoute: AuthenticatedLivesRoute,
+  AuthenticatedLojaRoute: AuthenticatedLojaRoute,
+  AuthenticatedMeusProdutosRoute: AuthenticatedMeusProdutosRoute,
+  AuthenticatedMinhaContaRoute: AuthenticatedMinhaContaRoute,
   AuthenticatedTrilhasRoute: AuthenticatedTrilhasRoute,
   AuthenticatedAulaIdRoute: AuthenticatedAulaIdRoute,
 }
