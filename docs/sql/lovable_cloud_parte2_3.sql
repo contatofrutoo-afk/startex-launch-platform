@@ -177,10 +177,10 @@ create policy "Produtos leitura comprador" on storage.objects
 
 commit;
 
--- APÓS contato.listin@gmail.com criar conta (rodar 1x):
+-- APÓS phoyouagencia@gmail.com criar conta (rodar 1x):
 -- insert into public.user_roles (user_id, role)
--- select id, 'admin'::public.app_role from auth.users where lower(email) = lower('contato.listin@gmail.com')
+-- select id, 'admin'::public.app_role from auth.users where lower(email) = lower('phoyouagencia@gmail.com')
 -- on conflict (user_id, role) do nothing;
 -- insert into public.subscriptions (user_id, status, acesso_manual)
--- select id, 'active', true from auth.users where lower(email) = lower('contato.listin@gmail.com')
+-- select id, 'active', true from auth.users where lower(email) = lower('phoyouagencia@gmail.com')
 -- on conflict (user_id) do update set status = 'active', acesso_manual = true;

@@ -4,7 +4,7 @@
 - [x] Página de vendas (/), cadastro (/cadastro), login (/entrar), recuperação de senha
 - [x] Trilhas estilo Netflix (/trilhas) e página da aula (/aula/:id)
 - [x] Minha conta, Termos e Privacidade
-- [x] Conta administradora definida no app: `contato.listin@gmail.com` (fallback admin/acesso; aplicar role `admin` no Lovable Cloud)
+- [x] Conta administradora definida no app: `phoyouagencia@gmail.com` (fallback admin/acesso; aplicar role `admin` no Lovable Cloud)
 - [x] Fluxo de cadastro sem verificação no app (redireciona às trilhas quando há sessão; desativar confirmação de e-mail no Auth do Lovable Cloud)
 
 ## Parte 2 — Lives, Hot Seats e Loja

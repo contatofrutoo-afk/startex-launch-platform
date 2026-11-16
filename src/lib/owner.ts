@@ -1,1 +1,1 @@
-﻿export const ADMIN_OWNER_EMAIL = "contato.listin@gmail.com";
+﻿export const ADMIN_OWNER_EMAIL = "phoyouagencia@gmail.com";

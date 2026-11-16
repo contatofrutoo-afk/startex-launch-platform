@@ -3,7 +3,7 @@
 Este projeto está conectado ao Lovable: **não edite `supabase/migrations/` nem `drizzle/` manualmente** e não coloque segredos no repo. Peça ao Lovable (ou use o editor/MCP) para aplicar o que segue.
 
 ## 1) Conta administradora
-- **E-mail do dono:** `contato.listin@gmail.com` — definir essa conta como `admin` em `user_roles` (role `admin`) no Lovable Cloud.
+- **E-mail do dono:** `phoyouagencia@gmail.com` — definir essa conta como `admin` em `user_roles` (role `admin`) no Lovable Cloud.
 - (Opcional) liberar acesso manual em `subscriptions` (`acesso_manual=true`, `status='active'`).
 
 ## 2) Banco de dados (faltante para PARTE 2/3)
