@@ -8,6 +8,13 @@
       "when": 1794807768455,
       "tag": "0000_startex_parte1_membros_trilhas",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1794878077497,
+      "tag": "0001_startex_parte2_3",
+      "breakpoints": true
     }
   ]
 }

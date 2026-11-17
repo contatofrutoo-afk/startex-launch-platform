@@ -16,4 +16,6 @@
 - [x] Pagamentos: arquitetura Stripe modo teste (checkout, webhooks, portal) + stubs de funções; pronto para Pix/outro provedor
 - [x] Definições de storage/segurança no código e docs (buckets capas público, vídeos/produtos privados)
 
-**Pendente no Lovable Cloud (config/infra gerenciada):** aplicar schema/RLS (`sessions`,`products`,`orders` e ajustes), criar buckets, desativar confirmação de e-mail no Auth, atribuir role admin no banco, configurar segredos Stripe e implantar `supabase/functions/*`. Ver `docs/LOVABLE_SETUP.md`.
+**Lovable Cloud (feito em 17/11/2026):** schema/RLS de `sessions`, `products`, `orders` aplicado; buckets `capas` (privado — público é bloqueado na plataforma), `videos` e `produtos` criados; login por e-mail ativado e confirmação de e-mail desativada; cadastro testado de ponta a ponta (conta → trilhas → aula).
+
+**Ainda pendente:** atribuir role `admin` a `phoyouagencia@gmail.com` depois que o dono criar a conta; configurar segredos Stripe e implantar pagamentos; capas usam URL assinada (bucket privado).

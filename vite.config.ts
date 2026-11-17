@@ -19,7 +19,7 @@ const realClientPath = fileURLToPath(
 );
 
 function normalizePath(value: string): string {
-  return value.split("?")[0].replace(/\\/g, "/");
+  return (value.split("?")[0] ?? value).replace(/\\/g, "/");
 }
 
 const realClientPathPosix = normalizePath(realClientPath);

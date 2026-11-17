@@ -134,6 +134,98 @@ export type Database = {
           },
         ]
       }
+      orders: {
+        Row: {
+          amount_cents: number | null
+          created_at: string
+          id: string
+          product_id: string
+          provider: string | null
+          provider_payment_intent_id: string | null
+          provider_session_id: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount_cents?: number | null
+          created_at?: string
+          id?: string
+          product_id: string
+          provider?: string | null
+          provider_payment_intent_id?: string | null
+          provider_session_id?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount_cents?: number | null
+          created_at?: string
+          id?: string
+          product_id?: string
+          provider?: string | null
+          provider_payment_intent_id?: string | null
+          provider_session_id?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "orders_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      products: {
+        Row: {
+          active: boolean
+          cover_url: string | null
+          created_at: string
+          description: string
+          file_path: string | null
+          id: string
+          member_price_cents: number | null
+          name: string
+          price_cents: number
+          slug: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          cover_url?: string | null
+          created_at?: string
+          description?: string
+          file_path?: string | null
+          id?: string
+          member_price_cents?: number | null
+          name: string
+          price_cents?: number
+          slug: string
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          cover_url?: string | null
+          created_at?: string
+          description?: string
+          file_path?: string | null
+          id?: string
+          member_price_cents?: number | null
+          name?: string
+          price_cents?: number
+          slug?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           aceite_termos_em: string | null
@@ -160,6 +252,42 @@ export type Database = {
           id?: string
           nome?: string
           telefone?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      sessions: {
+        Row: {
+          created_at: string
+          description: string
+          id: string
+          join_url: string | null
+          replay_url: string | null
+          starts_at: string
+          title: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string
+          id?: string
+          join_url?: string | null
+          replay_url?: string | null
+          starts_at: string
+          title: string
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          id?: string
+          join_url?: string | null
+          replay_url?: string | null
+          starts_at?: string
+          title?: string
+          type?: string
           updated_at?: string
         }
         Relationships: []
