@@ -22,8 +22,28 @@ returns boolean language sql stable security definer set search_path = public as
   )
 $$;
 
+-- ========== RLS em todas as tabelas do app ==========
+alter table if exists public.profiles enable row level security;
+alter table if exists public.subscriptions enable row level security;
+alter table if exists public.user_roles enable row level security;
+alter table if exists public.orders enable row level security;
+alter table if exists public.tracks enable row level security;
+alter table if exists public.lessons enable row level security;
+alter table if exists public.lesson_media enable row level security;
+alter table if exists public.lesson_progress enable row level security;
+alter table if exists public.sessions enable row level security;
+alter table if exists public.products enable row level security;
+
+-- Nenhum acesso anônimo às tabelas com dados pessoais.
+do $$
+begin
+  if to_regclass('public.profiles') is not null then execute 'revoke all on public.profiles from anon'; end if;
+  if to_regclass('public.subscriptions') is not null then execute 'revoke all on public.subscriptions from anon'; end if;
+  if to_regclass('public.user_roles') is not null then execute 'revoke all on public.user_roles from anon'; end if;
+  if to_regclass('public.orders') is not null then execute 'revoke all on public.orders from anon'; end if;
+end $$;
+
 -- ========== PROFILES: somente o próprio usuário ou admin ==========
-alter table public.profiles enable row level security;
 do $$
 declare r record;
 begin
@@ -40,7 +60,6 @@ create policy "Editar o próprio perfil" on public.profiles
   with check (id = auth.uid());
 
 -- ========== SUBSCRIPTIONS: somente a própria assinatura ou admin ==========
-alter table public.subscriptions enable row level security;
 do $$
 declare r record;
 begin
@@ -57,7 +76,6 @@ create policy "Admins gerenciam assinaturas" on public.subscriptions
   with check (public.has_role(auth.uid(), 'admin'));
 
 -- ========== USER_ROLES: somente os próprios papéis ou admin ==========
-alter table public.user_roles enable row level security;
 do $$
 declare r record;
 begin
@@ -70,7 +88,6 @@ create policy "Ver os próprios papéis" on public.user_roles
   using (user_id = auth.uid() or public.has_role(auth.uid(), 'admin'));
 
 -- ========== ORDERS: somente os próprios pedidos ou admin ==========
-alter table public.orders enable row level security;
 do $$
 declare r record;
 begin
