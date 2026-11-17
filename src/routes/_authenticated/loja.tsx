@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PageContainer } from "@/components/app/AppShell";
 import { supabase } from "@/integrations/supabase/client";
+import { resolveStorageUrl } from "@/lib/storage";
 import { formatBRL } from "@/lib/format";
 import { useMember } from "@/hooks/use-member";
 import { PRODUCT_FILTERS, effectivePriceCents, productTypeLabel, type Product } from "@/lib/products";
@@ -35,7 +36,12 @@ export function useProducts() {
         .eq("active", true)
         .order("created_at", { ascending: false });
       if (error) throw error;
-      return (data ?? []) as Product[];
+      return Promise.all(
+        ((data ?? []) as Product[]).map(async (p) => ({
+          ...p,
+          cover_url: await resolveStorageUrl(p.cover_url),
+        })),
+      );
     },
   });
 }

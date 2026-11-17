@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SubscribeButton } from "@/components/app/SubscribeButton";
 import { supabase } from "@/integrations/supabase/client";
+import { resolveStorageUrl } from "@/lib/storage";
 import { useMember } from "@/hooks/use-member";
 import { canWatchLesson, youtubeId } from "@/lib/lessons";
 import { formatDuration } from "@/lib/format";
@@ -50,7 +51,10 @@ function useLesson(id: string) {
         videoUrl = signed?.signedUrl ?? null;
       }
       return {
-        lesson,
+        lesson: {
+          ...lesson,
+          thumbnail_url: await resolveStorageUrl(lesson.thumbnail_url),
+        },
         track: trackRes.data,
         siblings: siblingsRes.data ?? [],
         media,

@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { resolveStorageUrl } from "@/lib/storage";
 import type { Tables } from "@/integrations/supabase/types";
 
 export type Lesson = Tables<"lessons">;
@@ -21,10 +22,21 @@ export function useCatalog() {
       if (lessonsRes.error) throw lessonsRes.error;
       if (progressRes.error) throw progressRes.error;
 
-      const lessons = lessonsRes.data;
-      const tracks: TrackWithLessons[] = tracksRes.data
-        .map((t) => ({ ...t, lessons: lessons.filter((l) => l.track_id === t.id) }))
-        .filter((t) => t.lessons.length > 0);
+      const lessons = await Promise.all(
+        lessonsRes.data.map(async (l) => ({
+          ...l,
+          thumbnail_url: await resolveStorageUrl(l.thumbnail_url),
+        })),
+      );
+      const tracks: TrackWithLessons[] = (
+        await Promise.all(
+          tracksRes.data.map(async (t) => ({
+            ...t,
+            cover_url: await resolveStorageUrl(t.cover_url),
+            lessons: lessons.filter((l) => l.track_id === t.id),
+          })),
+        )
+      ).filter((t) => t.lessons.length > 0);
       const progress = new Map(progressRes.data.map((p) => [p.lesson_id, p]));
       return { tracks, lessons, progress };
     },

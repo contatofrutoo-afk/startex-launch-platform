@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PageContainer } from "@/components/app/AppShell";
 import { supabase } from "@/integrations/supabase/client";
+import { resolveStorageUrl } from "@/lib/storage";
 import { formatBRL } from "@/lib/format";
 import { useMember } from "@/hooks/use-member";
 import { effectivePriceCents, isDownloadableProduct, productTypeLabel, type Product } from "@/lib/products";
@@ -33,7 +34,12 @@ function ProdutoPage() {
         .eq("active", true)
         .maybeSingle();
       if (error) throw error;
-      return data as Product | null;
+      const product = data as Product | null;
+      if (!product) return null;
+      return {
+        ...product,
+        cover_url: await resolveStorageUrl(product.cover_url),
+      };
     },
   });
   const ownedQ = useQuery({

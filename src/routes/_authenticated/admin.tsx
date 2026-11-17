@@ -132,14 +132,7 @@ async function uploadWithProgress(bucket: string, path: string, file: File, onPr
   if (import.meta.env.MODE === "demo") {
     await new Promise((resolve) => setTimeout(resolve, 350));
     onProgress(100);
-    const covers = [
-      "/images/exemplo/trilha-fundamentos.jpg",
-      "/images/exemplo/trilha-financas.jpg",
-      "/images/exemplo/trilha-vendas.jpg",
-    ];
-    const isImage = file.type.startsWith("image/") || /\.(png|jpe?g|webp|gif|svg)$/i.test(file.name);
-    const publicUrl = isImage ? (covers[path.length % covers.length] ?? covers[0] ?? path) : path;
-    return { path, publicUrl };
+    return { path };
   }
   const url = `${import.meta.env["VITE_SUPABASE_URL"]}/storage/v1/object/${bucket}/${path.split("/").map(encodeURIComponent).join("/")}`;
   const { data: sessionData } = await supabase.auth.getSession();
@@ -159,8 +152,7 @@ async function uploadWithProgress(bucket: string, path: string, file: File, onPr
     xhr.onerror = () => reject(new Error("Falha de rede no upload"));
     xhr.send(file);
   });
-  const pub = supabase.storage.from(bucket).getPublicUrl(path);
-  return { path, publicUrl: pub.data.publicUrl };
+  return { path };
 }
 
 function AdminAulas() {
@@ -379,7 +371,7 @@ function AdminAulas() {
       const ext = file.name.split(".").pop() || "jpg";
       const path = `aulas/thumbs/${Date.now()}-${slugify(file.name.replace(/\.[^.]+$/, ""))}.${ext}`;
       const res = await uploadWithProgress("capas", path, file, setThumbProgress);
-      setLThumb(res.publicUrl);
+      setLThumb(res.path);
       toast.success("Thumbnail enviada.");
     } catch { toast.error("Falha no upload da thumbnail (bucket 'capas')."); }
     finally { setThumbProgress(null); }
@@ -401,7 +393,7 @@ function AdminAulas() {
       const ext = file.name.split(".").pop() || "jpg";
       const path = `trilhas/${Date.now()}-${slugify(file.name.replace(/\.[^.]+$/, ""))}.${ext}`;
       const res = await uploadWithProgress("capas", path, file, setTrackCoverProgress);
-      setTCover(res.publicUrl);
+      setTCover(res.path);
       toast.success("Capa enviada.");
     } catch { toast.error("Falha no upload da capa (bucket 'capas')."); }
     finally { setTrackCoverProgress(null); }
@@ -788,8 +780,8 @@ function AdminProducts() {
       const path = `${kind}/${Date.now()}-${slugify(file.name.replace(/\.[^.]+$/, ""))}.${ext}`;
       const bucket = kind === "cover" ? "capas" : "produtos";
       const res = await uploadWithProgress(bucket, path, file, setUploading);
-      if (kind === "cover") setCoverUrl(res.publicUrl);
-      else setFilePath(res.path);
+    if (kind === "cover") setCoverUrl(res.path);
+    else setFilePath(res.path);
       toast.success("Upload concluído.");
     } catch {
       toast.error("Falha no upload. Verifique se os buckets de produtos e capas existem.");

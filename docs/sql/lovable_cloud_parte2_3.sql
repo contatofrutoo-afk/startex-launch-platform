@@ -127,15 +127,16 @@ create policy "Admins leem assinaturas" on public.subscriptions
 -- ========== STORAGE BUCKETS ==========
 insert into storage.buckets (id, name, public)
 values
-  ('capas', 'capas', true),
+  ('capas', 'capas', false),
   ('videos', 'videos', false),
   ('produtos', 'produtos', false)
 on conflict (id) do update set public = excluded.public;
 
--- Capas: público lê, admin gerencia
+-- Capas: somente usuários autenticados leem, admin gerencia
 drop policy if exists "Capas públicas leitura" on storage.objects;
-create policy "Capas públicas leitura" on storage.objects
-  for select to public using (bucket_id = 'capas');
+drop policy if exists "Capas leitura autenticada" on storage.objects;
+create policy "Capas leitura autenticada" on storage.objects
+  for select to authenticated using (bucket_id = 'capas');
 drop policy if exists "Capas admin escrita" on storage.objects;
 create policy "Capas admin escrita" on storage.objects
   for all to authenticated

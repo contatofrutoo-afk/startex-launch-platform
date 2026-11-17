@@ -8,6 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { PageContainer } from "@/components/app/AppShell";
 import { supabase } from "@/integrations/supabase/client";
+import { resolveStorageUrl } from "@/lib/storage";
 import { useMember } from "@/hooks/use-member";
 import { isDownloadableProduct, productTypeLabel, type Order } from "@/lib/products";
 
@@ -43,7 +44,14 @@ function MeusProdutosPage() {
         .eq("status", "paid")
         .order("created_at", { ascending: false });
       if (error) throw error;
-      return (data ?? []) as Order[];
+      return Promise.all(
+        ((data ?? []) as Order[]).map(async (o) => ({
+          ...o,
+          product: o.product
+            ? { ...o.product, cover_url: await resolveStorageUrl(o.product.cover_url) }
+            : o.product,
+        })),
+      );
     },
   });
 
