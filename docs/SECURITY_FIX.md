@@ -18,6 +18,12 @@ O script é idempotente e faz:
 
 Para conferir depois de rodar, execute `docs/sql/security_diagnose.sql`: a primeira consulta deve voltar **vazia** (nenhuma tabela com `rowsecurity = false`).
 
+## Verificação realizada
+
+Após rodar o script no Lovable Cloud, as tabelas `profiles`, `subscriptions`, `user_roles` e `orders` passaram a responder **401 (permission denied)** para o papel `anon`, confirmando que o acesso anônimo foi removido.
+
+Se o finding continuar no Lovable, clique nele e confira se aponta para o **código do painel admin** (ex.: `src/routes/_authenticated/admin.tsx`) em vez do banco. Nesse caso o próximo passo é mover a leitura de `email`/`telefone` para uma server function com checagem de admin.
+
 O app já foi ajustado para gerar **signed URLs** para capas/thumbnails (`src/lib/storage.ts`), então as imagens continuam funcionando após a correção.
 
 > Importante: a migração `drizzle/migrations/0001_startex_parte2_3.sql` recria a policy pública de `capas`. Rode `docs/sql/security_fix.sql` **depois** que essa migração for aplicada no Lovable Cloud.
