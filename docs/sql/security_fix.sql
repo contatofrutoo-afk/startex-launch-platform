@@ -108,8 +108,17 @@ where cover_url like '%/storage/v1/object/public/capas/%';
 
 update storage.buckets set public = false where id = 'capas';
 
-drop policy if exists "Capas públicas leitura" on storage.objects;
-drop policy if exists "Capas leitura autenticada" on storage.objects;
+do $$
+declare r record;
+begin
+  for r in
+    select policyname from pg_policies
+    where schemaname = 'storage' and tablename = 'objects'
+      and (coalesce(qual, '') like '%capas%' or coalesce(with_check, '') like '%capas%')
+  loop
+    execute format('drop policy if exists %I on storage.objects', r.policyname);
+  end loop;
+end $$;
 create policy "Capas leitura autenticada" on storage.objects
   for select to authenticated
   using (bucket_id = 'capas');

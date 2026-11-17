@@ -15,3 +15,5 @@ O script é idempotente e faz:
 4. Mantém leitura de capas para usuários autenticados e escrita apenas para admins.
 
 O app já foi ajustado para gerar **signed URLs** para capas/thumbnails (`src/lib/storage.ts`), então as imagens continuam funcionando após a correção.
+
+> Importante: a migração `drizzle/migrations/0001_startex_parte2_3.sql` recria a policy pública de `capas`. Rode `docs/sql/security_fix.sql` **depois** que essa migração for aplicada no Lovable Cloud.
