@@ -59,6 +59,10 @@ create policy "Editar o próprio perfil" on public.profiles
   using (id = auth.uid())
   with check (id = auth.uid());
 
+-- O e-mail confiável é auth.users.email; o usuário só pode editar nome e telefone do perfil.
+revoke update on public.profiles from authenticated;
+grant update (nome, telefone) on public.profiles to authenticated;
+
 -- ========== SUBSCRIPTIONS: somente a própria assinatura ou admin ==========
 do $$
 declare r record;

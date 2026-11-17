@@ -19,6 +19,9 @@ export function SiteFooter() {
           <Link to="/privacidade" className="text-muted-foreground hover:text-foreground">
             Política de Privacidade
           </Link>
+          <Link to="/admin/entrar" className="text-muted-foreground hover:text-foreground">
+            Acesso administrativo
+          </Link>
         </nav>
         <div className="grid gap-2 text-sm">
           <span className="font-display font-semibold text-foreground">Contato</span>

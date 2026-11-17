@@ -38,12 +38,12 @@ async function fetchMember(): Promise<Member | null> {
   if (profileRes.error) throw profileRes.error;
 
   const profile = profileRes.data;
-  const email = (profile?.email || user.email || "").trim().toLowerCase();
+  const email = (user.email || "").trim().toLowerCase();
   const isOwner = email === ADMIN_OWNER_EMAIL.toLowerCase();
   const isAdmin = isOwner || (rolesRes.data ?? []).some((r) => r.role === "admin");
   return {
     userId: user.id,
-    email: profile?.email || user.email || "",
+    email: user.email || profile?.email || "",
     nome: profile?.nome || (user.user_metadata?.["nome"] as string | undefined) || "",
     telefone: profile?.telefone ?? "",
     aceiteTermosEm: profile?.aceite_termos_em ?? null,

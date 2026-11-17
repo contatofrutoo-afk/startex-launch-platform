@@ -15,6 +15,7 @@ O script é idempotente e faz:
 4. Torna o bucket `capas` **privado** e remove a policy de leitura pública.
 5. Converte URLs públicas antigas de capas para o caminho interno do bucket.
 6. Mantém leitura de capas para usuários autenticados e escrita apenas para admins.
+7. Restringe o `UPDATE` de `profiles` às colunas `nome` e `telefone` — o e-mail confiável é o de `auth.users`.
 
 Para conferir depois de rodar, execute `docs/sql/security_diagnose.sql`: a primeira consulta deve voltar **vazia** (nenhuma tabela com `rowsecurity = false`).
 

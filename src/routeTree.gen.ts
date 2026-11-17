@@ -23,6 +23,7 @@ import { Route as AuthenticatedLojaRouteImport } from './routes/_authenticated/l
 import { Route as AuthenticatedMeusProdutosRouteImport } from './routes/_authenticated/meus-produtos'
 import { Route as AuthenticatedMinhaContaRouteImport } from './routes/_authenticated/minha-conta'
 import { Route as AuthenticatedTrilhasRouteImport } from './routes/_authenticated/trilhas'
+import { Route as AdminEntrarRouteImport } from './routes/admin.entrar'
 import { Route as AuthenticatedAulaIdRouteImport } from './routes/_authenticated/aula.$id'
 import { Route as AuthenticatedLojaSlugRouteImport } from './routes/_authenticated/loja.$slug'
 
@@ -96,6 +97,11 @@ const AuthenticatedTrilhasRoute = AuthenticatedTrilhasRouteImport.update({
   path: '/trilhas',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AdminEntrarRoute = AdminEntrarRouteImport.update({
+  id: '/admin/entrar',
+  path: '/admin/entrar',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedAulaIdRoute = AuthenticatedAulaIdRouteImport.update({
   id: '/aula/$id',
   path: '/aula/$id',
@@ -121,6 +127,7 @@ export interface FileRoutesByFullPath {
   '/meus-produtos': typeof AuthenticatedMeusProdutosRoute
   '/minha-conta': typeof AuthenticatedMinhaContaRoute
   '/trilhas': typeof AuthenticatedTrilhasRoute
+  '/admin/entrar': typeof AdminEntrarRoute
   '/aula/$id': typeof AuthenticatedAulaIdRoute
   '/loja/$slug': typeof AuthenticatedLojaSlugRoute
 }
@@ -138,6 +145,7 @@ export interface FileRoutesByTo {
   '/meus-produtos': typeof AuthenticatedMeusProdutosRoute
   '/minha-conta': typeof AuthenticatedMinhaContaRoute
   '/trilhas': typeof AuthenticatedTrilhasRoute
+  '/admin/entrar': typeof AdminEntrarRoute
   '/aula/$id': typeof AuthenticatedAulaIdRoute
   '/loja/$slug': typeof AuthenticatedLojaSlugRoute
 }
@@ -157,6 +165,7 @@ export interface FileRoutesById {
   '/_authenticated/meus-produtos': typeof AuthenticatedMeusProdutosRoute
   '/_authenticated/minha-conta': typeof AuthenticatedMinhaContaRoute
   '/_authenticated/trilhas': typeof AuthenticatedTrilhasRoute
+  '/admin/entrar': typeof AdminEntrarRoute
   '/_authenticated/aula/$id': typeof AuthenticatedAulaIdRoute
   '/_authenticated/loja/$slug': typeof AuthenticatedLojaSlugRoute
 }
@@ -176,6 +185,7 @@ export interface FileRouteTypes {
     | '/meus-produtos'
     | '/minha-conta'
     | '/trilhas'
+    | '/admin/entrar'
     | '/aula/$id'
     | '/loja/$slug'
   fileRoutesByTo: FileRoutesByTo
@@ -193,6 +203,7 @@ export interface FileRouteTypes {
     | '/meus-produtos'
     | '/minha-conta'
     | '/trilhas'
+    | '/admin/entrar'
     | '/aula/$id'
     | '/loja/$slug'
   id:
@@ -211,6 +222,7 @@ export interface FileRouteTypes {
     | '/_authenticated/meus-produtos'
     | '/_authenticated/minha-conta'
     | '/_authenticated/trilhas'
+    | '/admin/entrar'
     | '/_authenticated/aula/$id'
     | '/_authenticated/loja/$slug'
   fileRoutesById: FileRoutesById
@@ -224,6 +236,7 @@ export interface RootRouteChildren {
   RecuperarSenhaRoute: typeof RecuperarSenhaRoute
   RedefinirSenhaRoute: typeof RedefinirSenhaRoute
   TermosRoute: typeof TermosRoute
+  AdminEntrarRoute: typeof AdminEntrarRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -326,6 +339,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTrilhasRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/admin/entrar': {
+      id: '/admin/entrar'
+      path: '/admin/entrar'
+      fullPath: '/admin/entrar'
+      preLoaderRoute: typeof AdminEntrarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/aula/$id': {
       id: '/_authenticated/aula/$id'
       path: '/aula/$id'
@@ -386,6 +406,7 @@ const rootRouteChildren: RootRouteChildren = {
   RecuperarSenhaRoute: RecuperarSenhaRoute,
   RedefinirSenhaRoute: RedefinirSenhaRoute,
   TermosRoute: TermosRoute,
+  AdminEntrarRoute: AdminEntrarRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

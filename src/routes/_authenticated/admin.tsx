@@ -1,5 +1,5 @@
 ﻿import { useMemo, useRef, useState } from "react";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   ArrowDown,
@@ -93,8 +93,12 @@ function AdminPage() {
         <div className="rounded-2xl border border-destructive/40 bg-card p-6">
           <p className="font-display text-lg font-semibold">Acesso restrito</p>
           <p className="mt-1 text-muted-foreground">
-            Esta área é exclusiva para administradores. Peça a um admin para liberar seu acesso.
+            Esta área é exclusiva para administradores. Entre com uma conta de administrador para
+            continuar.
           </p>
+          <Button asChild variant="hero" className="mt-4">
+            <Link to="/admin/entrar">Entrar com conta de administrador</Link>
+          </Button>
         </div>
       </PageContainer>
     );
