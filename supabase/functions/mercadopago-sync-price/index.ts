@@ -36,6 +36,10 @@ class HttpError extends Error {
   }
 }
 
+function shouldRecreateExternalId(error: unknown): boolean {
+  return error instanceof HttpError && [401, 403, 404].includes(error.status);
+}
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, content-type, apikey",
@@ -106,14 +110,26 @@ async function upsertPreference(
   existingId: string | null,
   payload: Record<string, unknown>,
 ): Promise<string> {
-  const response = existingId
-    ? await mpRequest<PreferenceResponse>(
+  let response: PreferenceResponse | undefined;
+  if (existingId) {
+    try {
+      response = await mpRequest<PreferenceResponse>(
         accessToken,
         `/checkout/preferences/${existingId}`,
         "PUT",
         payload,
-      )
-    : await mpRequest<PreferenceResponse>(accessToken, "/checkout/preferences", "POST", payload);
+      );
+    } catch (error) {
+      if (!shouldRecreateExternalId(error)) throw error;
+    }
+  }
+  if (!response)
+    response = await mpRequest<PreferenceResponse>(
+      accessToken,
+      "/checkout/preferences",
+      "POST",
+      payload,
+    );
   if (!response.id) throw new HttpError("Mercado Pago não retornou o ID da preferência.", 502);
   return response.id;
 }
@@ -188,13 +204,17 @@ async function syncSubscription(
   });
 
   if (settings.subscription_plan_id) {
-    await mpRequest(
-      settings.access_token,
-      `/preapproval_plan/${settings.subscription_plan_id}`,
-      "PUT",
-      payload,
-    );
-    return settings.subscription_plan_id;
+    try {
+      await mpRequest(
+        settings.access_token,
+        `/preapproval_plan/${settings.subscription_plan_id}`,
+        "PUT",
+        payload,
+      );
+      return settings.subscription_plan_id;
+    } catch (error) {
+      if (!shouldRecreateExternalId(error)) throw error;
+    }
   }
 
   const created = await mpRequest<PreferenceResponse>(

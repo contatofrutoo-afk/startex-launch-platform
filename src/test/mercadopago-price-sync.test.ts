@@ -6,6 +6,7 @@ import {
   centsToAmount,
   isActiveSubscriptionStatus,
   isInactiveSubscriptionStatus,
+  isMercadoPagoTestToken,
   subscriptionPeriodEnd,
 } from "@/lib/mercadopago-pricing";
 import { getPaymentAdapter } from "@/lib/payments";
@@ -80,6 +81,23 @@ describe("mercado pago price sync", () => {
     expect(payload.external_reference).toBe("subscription:user-123");
     expect(payload.back_url).toContain("/trilhas?assinatura=ok");
     expect(payload.notification_url).toContain("mercadopago-webhook");
+  });
+
+  it("não envia pagador real quando a credencial é de teste", () => {
+    expect(isMercadoPagoTestToken(" TEST-123 ")).toBe(true);
+    expect(isMercadoPagoTestToken("APP_USR-123")).toBe(false);
+
+    const payload = buildSubscriptionCheckoutPayload({
+      planId: "plan-123",
+      reason: "Assinatura Startex",
+      payerEmail: null,
+      backUrl: "https://startex.com.br/trilhas?assinatura=ok",
+      externalReference: "subscription:user-123",
+      notificationUrl: "https://app.supabase.co/functions/v1/mercadopago-webhook",
+    }) as Record<string, unknown>;
+
+    expect(payload["plan_id"]).toBe("plan-123");
+    expect("payer" in payload).toBe(false);
   });
 
   it("reconhece os status que liberam e revogam a assinatura", () => {

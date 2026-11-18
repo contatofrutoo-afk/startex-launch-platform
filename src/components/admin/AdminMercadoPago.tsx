@@ -20,7 +20,7 @@ import {
 } from "@/lib/payment-settings";
 import { formatDateTimeSP } from "@/lib/format";
 import { syncMercadoPagoPrices } from "@/lib/mercadopago-sync";
-import { PUBLISHED_APP_URL } from "@/lib/mercadopago-pricing";
+import { isMercadoPagoTestToken, PUBLISHED_APP_URL } from "@/lib/mercadopago-pricing";
 
 function toCents(value: string): number {
   const parsed = Number(value.replace(/\./g, "").replace(",", "."));
@@ -140,8 +140,13 @@ export function AdminMercadoPago() {
       );
       return;
     }
+    const tokenChanged = Boolean(
+      data &&
+        isMercadoPagoTestToken(data.accessToken) !== isMercadoPagoTestToken(form.accessToken),
+    );
     const next = {
       ...form,
+      subscriptionPlanId: tokenChanged ? "" : form.subscriptionPlanId,
       subscriptionPriceCents: toCents(subscriptionPrice),
       notificationUrl: webhookUrl,
     };
@@ -228,8 +233,9 @@ export function AdminMercadoPago() {
           <div className="mt-4 flex gap-3 rounded-xl border border-primary/20 bg-primary/5 p-4 text-sm text-muted-foreground">
             <ShieldCheck className="mt-0.5 size-5 shrink-0 text-primary" />
             <p>
-              As credenciais ficam no banco com acesso restrito a administradores. Use o modo
-              sandbox para testar e só desative quando a integração estiver validada.
+              As credenciais ficam no banco com acesso restrito a administradores. Com tokens TEST,
+              o checkout pede um usuário de teste do Mercado Pago e não envia o e-mail do aluno; use
+              tokens de produção para cobrar alunos reais.
             </p>
           </div>
 

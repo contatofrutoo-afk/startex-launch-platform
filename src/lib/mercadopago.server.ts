@@ -7,6 +7,7 @@ import {
   buildSubscriptionPlanPayload,
   isActiveSubscriptionStatus,
   isInactiveSubscriptionStatus,
+  isMercadoPagoTestToken,
   subscriptionPeriodEnd,
   SUBSCRIPTION_REASON,
 } from "@/lib/mercadopago-pricing";
@@ -32,6 +33,10 @@ export class MercadoPagoError extends Error {
     this.name = "MercadoPagoError";
     this.status = status;
   }
+}
+
+function shouldRecreateExternalId(error: unknown): boolean {
+  return error instanceof MercadoPagoError && [401, 403, 404].includes(error.status);
 }
 
 const MP_API = "https://api.mercadopago.com";
@@ -93,7 +98,7 @@ export async function mpRequest<T>(
     console.error("[mercadopago]", method, path, response.status, raw.slice(0, 500));
     throw new MercadoPagoError(
       body?.message ? `Mercado Pago: ${body.message}` : `Mercado Pago retornou ${response.status}.`,
-      response.status >= 500 ? 502 : 400,
+      response.status >= 500 ? 502 : response.status,
     );
   }
   return body as T;
@@ -116,7 +121,8 @@ export async function createSubscriptionCheckout(input: {
   backUrl: string;
   cancelUrl: string;
 }): Promise<string> {
-  if (input.settings.sandbox) {
+  const testMode = input.settings.sandbox || isMercadoPagoTestToken(input.settings.accessToken);
+  if (testMode) {
     const preference = buildSubscriptionTestPreference({
       priceCents: input.settings.subscriptionPriceCents,
       externalReference: `subscription:${input.userId}`,
@@ -184,7 +190,8 @@ export async function createProductCheckout(input: {
     "POST",
     payload,
   );
-  return pickCheckoutUrl(res, input.settings.sandbox);
+  const testMode = input.settings.sandbox || isMercadoPagoTestToken(input.settings.accessToken);
+  return pickCheckoutUrl(res, testMode);
 }
 
 /** Mantém um plano de referência no Mercado Pago com o preço atual da assinatura. */
@@ -199,8 +206,12 @@ export async function syncSubscriptionPlan(
     backUrl: `${origin}/trilhas?assinatura=ok`,
   });
   if (settings.subscriptionPlanId) {
-    await mpRequest(settings.accessToken, `/preapproval_plan/${settings.subscriptionPlanId}`, "PUT", payload);
-    return settings.subscriptionPlanId;
+    try {
+      await mpRequest(settings.accessToken, `/preapproval_plan/${settings.subscriptionPlanId}`, "PUT", payload);
+      return settings.subscriptionPlanId;
+    } catch (error) {
+      if (!shouldRecreateExternalId(error)) throw error;
+    }
   }
   const created = await mpRequest<{ id?: string }>(settings.accessToken, "/preapproval_plan", "POST", payload);
   if (!created.id) throw new MercadoPagoError("Mercado Pago não retornou o ID do plano.", 502);

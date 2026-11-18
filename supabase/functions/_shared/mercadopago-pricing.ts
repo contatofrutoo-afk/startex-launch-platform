@@ -19,7 +19,7 @@ export type MercadoPagoPlanInput = {
 export type MercadoPagoSubscriptionCheckoutInput = {
   planId: string;
   reason: string;
-  payerEmail: string;
+  payerEmail?: string | null;
   payerName?: string | null;
   externalReference: string;
   backUrl: string;
@@ -28,6 +28,13 @@ export type MercadoPagoSubscriptionCheckoutInput = {
 
 export function centsToAmount(cents: number): number {
   return Math.round(cents) / 100;
+}
+
+export function isMercadoPagoTestToken(accessToken: string | undefined): boolean {
+  return String(accessToken ?? "")
+    .trim()
+    .toUpperCase()
+    .startsWith("TEST-");
 }
 
 export function isActiveSubscriptionStatus(status: string | undefined): boolean {
@@ -90,10 +97,14 @@ export function buildSubscriptionCheckoutPayload(
   return {
     plan_id: input.planId,
     reason: input.reason,
-    payer: {
-      email: input.payerEmail,
-      ...(input.payerName ? { name: input.payerName } : {}),
-    },
+    ...(input.payerEmail
+      ? {
+          payer: {
+            email: input.payerEmail,
+            ...(input.payerName ? { name: input.payerName } : {}),
+          },
+        }
+      : {}),
     external_reference: input.externalReference,
     back_url: input.backUrl,
     notification_url: input.notificationUrl || undefined,
