@@ -20,6 +20,10 @@ type Mutation = {
 
 const nowIso = () => new Date().toISOString();
 
+function minutesAgo(minutes: number): string {
+  return new Date(Date.now() - minutes * 60_000).toISOString();
+}
+
 function dateFromNow(days: number, hour = 19, minute = 0): string {
   const d = new Date();
   d.setDate(d.getDate() + days);
@@ -29,6 +33,9 @@ function dateFromNow(days: number, hour = 19, minute = 0): string {
 
 const DEMO_USER_ID = "11111111-1111-4111-8111-111111111111";
 const DEMO_STUDENT_ID = "22222222-2222-4222-8222-222222222222";
+const DEMO_MEMBER_3 = "33333333-3333-4333-8333-333333333333";
+const DEMO_MEMBER_4 = "44444444-4444-4444-8444-444444444444";
+const DEMO_MEMBER_5 = "55555555-5555-4555-8555-555555555555";
 
 const T1 = "a0000000-0000-4000-8000-000000000001";
 const T2 = "a0000000-0000-4000-8000-000000000002";
@@ -61,6 +68,23 @@ const O2 = "e0000000-0000-4000-8000-000000000002";
 const O3 = "e0000000-0000-4000-8000-000000000003";
 const O4 = "e0000000-0000-4000-8000-000000000004";
 
+const CT1 = "f2000000-0000-4000-8000-000000000001";
+const CT2 = "f2000000-0000-4000-8000-000000000002";
+const CT3 = "f2000000-0000-4000-8000-000000000003";
+const CT4 = "f2000000-0000-4000-8000-000000000004";
+const CPT = "a2000000-0000-4000-8000-000000000101";
+
+const CM1 = "c2000000-0000-4000-8000-000000000001";
+const CM2 = "c2000000-0000-4000-8000-000000000002";
+const CM3 = "c2000000-0000-4000-8000-000000000003";
+const CM4 = "c2000000-0000-4000-8000-000000000004";
+const CM5 = "c2000000-0000-4000-8000-000000000005";
+const CM6 = "c2000000-0000-4000-8000-000000000006";
+const CM7 = "c2000000-0000-4000-8000-000000000007";
+const CM8 = "c2000000-0000-4000-8000-000000000008";
+const CM9 = "c2000000-0000-4000-8000-000000000009";
+const CM10 = "c2000000-0000-4000-8000-000000000010";
+
 const IMAGES = [
   "/images/exemplo/trilha-fundamentos.jpg",
   "/images/exemplo/trilha-financas.jpg",
@@ -75,6 +99,9 @@ const PROFILE_DEMO: Row = {
   nome: "Ana Demo",
   email: "demo@startex.com.br",
   telefone: "(11) 99999-0000",
+  avatar_url: "",
+  cidade: "São Paulo",
+  estado: "SP",
   aceite_termos_em: dateFromNow(-45, 10, 0),
   created_at: dateFromNow(-45, 10, 0),
   updated_at: nowIso(),
@@ -85,13 +112,55 @@ const PROFILE_STUDENT: Row = {
   nome: "Maria Souza",
   email: "maria@exemplo.com",
   telefone: "(21) 98888-1111",
+  avatar_url: "",
+  cidade: "Rio de Janeiro",
+  estado: "RJ",
   aceite_termos_em: dateFromNow(-20, 9, 0),
   created_at: dateFromNow(-20, 9, 0),
   updated_at: nowIso(),
 };
 
+const PROFILE_MEMBER_3: Row = {
+  id: DEMO_MEMBER_3,
+  nome: "Camila Rocha",
+  email: "camila@exemplo.com",
+  telefone: "(19) 98888-1234",
+  avatar_url: "",
+  cidade: "Campinas",
+  estado: "SP",
+  aceite_termos_em: dateFromNow(-30, 9, 0),
+  created_at: dateFromNow(-30, 9, 0),
+  updated_at: nowIso(),
+};
+
+const PROFILE_MEMBER_4: Row = {
+  id: DEMO_MEMBER_4,
+  nome: "Juliana Prado",
+  email: "juliana@exemplo.com",
+  telefone: "(31) 97777-4321",
+  avatar_url: "",
+  cidade: "Belo Horizonte",
+  estado: "MG",
+  aceite_termos_em: dateFromNow(-25, 9, 0),
+  created_at: dateFromNow(-25, 9, 0),
+  updated_at: nowIso(),
+};
+
+const PROFILE_MEMBER_5: Row = {
+  id: DEMO_MEMBER_5,
+  nome: "Rafaela Nunes",
+  email: "rafaela@exemplo.com",
+  telefone: "(41) 96666-5678",
+  avatar_url: "",
+  cidade: "Curitiba",
+  estado: "PR",
+  aceite_termos_em: dateFromNow(-18, 9, 0),
+  created_at: dateFromNow(-18, 9, 0),
+  updated_at: nowIso(),
+};
+
 const db: Record<string, Row[]> = {
-  profiles: [PROFILE_DEMO, PROFILE_STUDENT],
+  profiles: [PROFILE_DEMO, PROFILE_STUDENT, PROFILE_MEMBER_3, PROFILE_MEMBER_4, PROFILE_MEMBER_5],
   user_roles: [
     {
       id: "f0000000-0000-4000-8000-000000000001",
@@ -104,6 +173,24 @@ const db: Record<string, Row[]> = {
       user_id: DEMO_STUDENT_ID,
       role: "member",
       created_at: dateFromNow(-20, 9, 0),
+    },
+    {
+      id: "f0000000-0000-4000-8000-000000000003",
+      user_id: DEMO_MEMBER_3,
+      role: "member",
+      created_at: dateFromNow(-30, 9, 0),
+    },
+    {
+      id: "f0000000-0000-4000-8000-000000000004",
+      user_id: DEMO_MEMBER_4,
+      role: "member",
+      created_at: dateFromNow(-25, 9, 0),
+    },
+    {
+      id: "f0000000-0000-4000-8000-000000000005",
+      user_id: DEMO_MEMBER_5,
+      role: "member",
+      created_at: dateFromNow(-18, 9, 0),
     },
   ],
   subscriptions: [
@@ -130,6 +217,100 @@ const db: Record<string, Row[]> = {
       current_period_end: dateFromNow(12, 23, 59),
       created_at: dateFromNow(-20, 9, 0),
       updated_at: nowIso(),
+    },
+    {
+      id: "f1000000-0000-4000-8000-000000000003",
+      user_id: DEMO_MEMBER_3,
+      status: "active",
+      acesso_manual: false,
+      provider: "stripe",
+      provider_customer_id: "cus_demo_camila",
+      provider_subscription_id: "sub_demo_camila",
+      current_period_end: dateFromNow(21, 23, 59),
+      created_at: dateFromNow(-30, 9, 0),
+      updated_at: nowIso(),
+    },
+    {
+      id: "f1000000-0000-4000-8000-000000000004",
+      user_id: DEMO_MEMBER_4,
+      status: "active",
+      acesso_manual: false,
+      provider: "stripe",
+      provider_customer_id: "cus_demo_juliana",
+      provider_subscription_id: "sub_demo_juliana",
+      current_period_end: dateFromNow(9, 23, 59),
+      created_at: dateFromNow(-25, 9, 0),
+      updated_at: nowIso(),
+    },
+    {
+      id: "f1000000-0000-4000-8000-000000000005",
+      user_id: DEMO_MEMBER_5,
+      status: "active",
+      acesso_manual: true,
+      provider: "manual",
+      provider_customer_id: null,
+      provider_subscription_id: null,
+      current_period_end: null,
+      created_at: dateFromNow(-18, 9, 0),
+      updated_at: nowIso(),
+    },
+  ],
+  service_cards: [
+    {
+      id: "b3000000-0000-4000-8000-000000000001",
+      user_id: DEMO_MEMBER_3,
+      nome: "Camila Rocha",
+      cidade: "Campinas",
+      estado: "SP",
+      servico: "Design e identidade visual",
+      descricao:
+        "Crio marcas, logotipos e materiais gráficos para pequenos negócios que querem se profissionalizar e vender mais.",
+      contato: "(19) 98888-1234",
+      avatar_url: "",
+      patrocinado: true,
+      created_at: dateFromNow(-6, 10, 0),
+    },
+    {
+      id: "b3000000-0000-4000-8000-000000000002",
+      user_id: DEMO_MEMBER_4,
+      nome: "Juliana Prado",
+      cidade: "Belo Horizonte",
+      estado: "MG",
+      servico: "Contabilidade para MEI",
+      descricao:
+        "Organizo a documentação e o fluxo de caixa do seu negócio para você emitir notas, pagar impostos com tranquilidade.",
+      contato: "(31) 97777-4321",
+      avatar_url: "",
+      patrocinado: false,
+      created_at: dateFromNow(-4, 10, 0),
+    },
+    {
+      id: "b3000000-0000-4000-8000-000000000003",
+      user_id: DEMO_MEMBER_5,
+      nome: "Rafaela Nunes",
+      cidade: "Curitiba",
+      estado: "PR",
+      servico: "Doces artesanais",
+      descricao:
+        "Produzo bolos e doces personalizados para festas e eventos, com entrega em Curitiba e região metropolitana.",
+      contato: "(41) 96666-5678",
+      avatar_url: "",
+      patrocinado: false,
+      created_at: dateFromNow(-3, 10, 0),
+    },
+    {
+      id: "b3000000-0000-4000-8000-000000000004",
+      user_id: DEMO_STUDENT_ID,
+      nome: "Maria Souza",
+      cidade: "Rio de Janeiro",
+      estado: "RJ",
+      servico: "Fotografia de produtos",
+      descricao:
+        "Fotos profissionais para catálogo, redes sociais e marketplaces, com estilo limpo e foco em conversão.",
+      contato: "(21) 98888-1111",
+      avatar_url: "",
+      patrocinado: false,
+      created_at: dateFromNow(-2, 10, 0),
     },
   ],
   tracks: [
@@ -565,6 +746,162 @@ const db: Record<string, Row[]> = {
       updated_at: dateFromNow(-1, 10, 0),
     },
   ],
+  community_threads: [
+    {
+      id: CT1,
+      title: "Mural de boas-vindas",
+      description: "Apresente-se para a comunidade e conheça outras empreendedoras.",
+      is_private: false,
+      created_by: null,
+      created_at: dateFromNow(-4, 8, 0),
+      updated_at: minutesAgo(160),
+    },
+    {
+      id: CT2,
+      title: "Dúvidas e desafios do negócio",
+      description: "Compartilhe seus desafios e ajude outras membros com soluções práticas.",
+      is_private: false,
+      created_by: null,
+      created_at: dateFromNow(-3, 8, 0),
+      updated_at: minutesAgo(320),
+    },
+    {
+      id: CT3,
+      title: "Parcerias e indicações",
+      description: "Encontre parceiras, fornecedoras e clientes para o seu negócio.",
+      is_private: false,
+      created_by: null,
+      created_at: dateFromNow(-2, 8, 0),
+      updated_at: minutesAgo(1500),
+    },
+    {
+      id: CT4,
+      title: "Conquistas e novidades",
+      description: "Celebre suas vitórias e acompanhe as novidades da Startex.",
+      is_private: false,
+      created_by: null,
+      created_at: dateFromNow(-1, 8, 0),
+      updated_at: minutesAgo(2600),
+    },
+    {
+      id: CPT,
+      title: "Conversa privada",
+      description: "",
+      is_private: true,
+      created_by: DEMO_USER_ID,
+      created_at: minutesAgo(90),
+      updated_at: minutesAgo(12),
+    },
+  ],
+  community_thread_members: [
+    { thread_id: CPT, user_id: DEMO_USER_ID, created_at: minutesAgo(90) },
+    { thread_id: CPT, user_id: DEMO_STUDENT_ID, created_at: minutesAgo(90) },
+  ],
+  community_messages: [
+    {
+      id: CM1,
+      thread_id: CT1,
+      user_id: DEMO_USER_ID,
+      parent_id: null,
+      content:
+        "Oi, gente! Sou a Ana, acabei de entrar na comunidade. Estou montando uma marca de cosméticos naturais e quero trocar ideias com vocês.",
+      mentioned_user_ids: [],
+      created_at: minutesAgo(200),
+    },
+    {
+      id: CM2,
+      thread_id: CT1,
+      user_id: DEMO_STUDENT_ID,
+      parent_id: CM1,
+      content:
+        "Bem-vinda, Ana! Que bom ter você aqui. Se quiser ajuda com posicionamento e preços, me chama. @Ana",
+      mentioned_user_ids: [DEMO_USER_ID],
+      created_at: minutesAgo(160),
+    },
+    {
+      id: CM3,
+      thread_id: CT2,
+      user_id: DEMO_STUDENT_ID,
+      parent_id: null,
+      content: "Como vocês definem o preço de um serviço novo sem perder clientes?",
+      mentioned_user_ids: [],
+      created_at: minutesAgo(390),
+    },
+    {
+      id: CM4,
+      thread_id: CT2,
+      user_id: DEMO_USER_ID,
+      parent_id: CM3,
+      content:
+        "Eu começo somando custo, tempo e impostos, depois comparo com três concorrentes. @Maria, posso te mostrar a planilha que uso.",
+      mentioned_user_ids: [DEMO_STUDENT_ID],
+      created_at: minutesAgo(320),
+    },
+    {
+      id: CM5,
+      thread_id: CT3,
+      user_id: DEMO_USER_ID,
+      parent_id: null,
+      content:
+        "Estou buscando parceiras para uma ação conjunta de conteúdo em novembro. Alguém topa?",
+      mentioned_user_ids: [],
+      created_at: minutesAgo(1600),
+    },
+    {
+      id: CM6,
+      thread_id: CT3,
+      user_id: DEMO_STUDENT_ID,
+      parent_id: CM5,
+      content: "Eu topo! Trabalho com fotografia de produtos e posso contribuir com as imagens.",
+      mentioned_user_ids: [],
+      created_at: minutesAgo(1500),
+    },
+    {
+      id: CM7,
+      thread_id: CT4,
+      user_id: DEMO_STUDENT_ID,
+      parent_id: null,
+      content:
+        "Fechei minhas primeiras 10 vendas no novo site esta semana. Obrigada pelas dicas, comunidade!",
+      mentioned_user_ids: [],
+      created_at: minutesAgo(2700),
+    },
+    {
+      id: CM8,
+      thread_id: CT4,
+      user_id: DEMO_USER_ID,
+      parent_id: CM7,
+      content: "Que notícia boa, Maria! Conta depois o que funcionou melhor no lançamento.",
+      mentioned_user_ids: [],
+      created_at: minutesAgo(2600),
+    },
+    {
+      id: CM9,
+      thread_id: CPT,
+      user_id: DEMO_USER_ID,
+      parent_id: null,
+      content:
+        "Oi, Maria! Queria te perguntar como você organiza a agenda entre conteúdo e atendimento.",
+      mentioned_user_ids: [],
+      created_at: minutesAgo(30),
+    },
+    {
+      id: CM10,
+      thread_id: CPT,
+      user_id: DEMO_STUDENT_ID,
+      parent_id: CM9,
+      content:
+        "Oi, Ana! Eu separo dois blocos fixos na semana e deixo um dia livre para imprevistos. Funciona bem para mim. @Ana",
+      mentioned_user_ids: [DEMO_USER_ID],
+      created_at: minutesAgo(12),
+    },
+  ],
+  community_message_likes: [
+    { message_id: CM1, user_id: DEMO_STUDENT_ID, created_at: minutesAgo(150) },
+    { message_id: CM3, user_id: DEMO_USER_ID, created_at: minutesAgo(300) },
+    { message_id: CM7, user_id: DEMO_USER_ID, created_at: minutesAgo(2500) },
+    { message_id: CM9, user_id: DEMO_STUDENT_ID, created_at: minutesAgo(20) },
+  ],
 };
 
 const ID_TABLES = new Set([
@@ -576,6 +913,9 @@ const ID_TABLES = new Set([
   "sessions",
   "products",
   "orders",
+  "service_cards",
+  "community_threads",
+  "community_messages",
 ]);
 
 function newId(): string {
@@ -702,7 +1042,31 @@ function makeRow(table: string, input: Row): Row {
     if (row["nome"] === undefined) row["nome"] = "";
     if (row["email"] === undefined) row["email"] = "";
     if (row["telefone"] === undefined) row["telefone"] = "";
+    if (row["avatar_url"] === undefined) row["avatar_url"] = "";
+    if (row["cidade"] === undefined) row["cidade"] = "";
+    if (row["estado"] === undefined) row["estado"] = "";
     if (row["aceite_termos_em"] === undefined) row["aceite_termos_em"] = null;
+  }
+  if (table === "service_cards") {
+    if (row["nome"] === undefined) row["nome"] = "";
+    if (row["cidade"] === undefined) row["cidade"] = "";
+    if (row["estado"] === undefined) row["estado"] = "";
+    if (row["servico"] === undefined) row["servico"] = "";
+    if (row["descricao"] === undefined) row["descricao"] = "";
+    if (row["contato"] === undefined) row["contato"] = "";
+    if (row["avatar_url"] === undefined) row["avatar_url"] = null;
+    if (row["patrocinado"] === undefined) row["patrocinado"] = false;
+  }
+  if (table === "community_threads") {
+    if (row["title"] === undefined) row["title"] = "";
+    if (row["description"] === undefined) row["description"] = "";
+    if (row["is_private"] === undefined) row["is_private"] = false;
+    if (row["created_by"] === undefined) row["created_by"] = null;
+  }
+  if (table === "community_messages") {
+    if (row["parent_id"] === undefined) row["parent_id"] = null;
+    if (row["content"] === undefined) row["content"] = "";
+    if (row["mentioned_user_ids"] === undefined) row["mentioned_user_ids"] = [];
   }
   return row;
 }
@@ -714,6 +1078,34 @@ function applyFilters(rows: Row[], filters: Filter[]): Row[] {
       return row[column] === value;
     }),
   );
+}
+
+function tableRows(name: string): Row[] {
+  if (name === "marketplace_cards") {
+    const profiles = db["profiles"] ?? [];
+    return (db["service_cards"] ?? [])
+      .filter((card) => hasActiveAccess(String(card["user_id"])))
+      .map((card) => {
+        const profile = profiles.find((candidate) => candidate["id"] === card["user_id"]);
+        return {
+          ...card,
+          nome: card["nome"] || profile?.["nome"] || "Membro Startex",
+          cidade: card["cidade"] || profile?.["cidade"] || "",
+          estado: card["estado"] || profile?.["estado"] || "",
+          avatar_url: card["avatar_url"] || profile?.["avatar_url"] || null,
+        };
+      });
+  }
+  if (name === "community_profiles") {
+    return (db["profiles"] ?? []).map((profile) => ({
+      id: profile["id"],
+      nome: profile["nome"] ?? "",
+      avatar_url: profile["avatar_url"] || null,
+      cidade: profile["cidade"] ?? "",
+      estado: profile["estado"] ?? "",
+    }));
+  }
+  return (db[name] ??= []);
 }
 
 function decorateRow(table: string, row: Row, select?: string | null): Row {
@@ -739,7 +1131,7 @@ type QueryState = {
 };
 
 async function execute(state: QueryState): Promise<{ data: any; error: any }> {
-  const table = (db[state.table] ??= []);
+  const table = tableRows(state.table);
   let resultRows: Row[] | null = null;
 
   if (state.mutation) {
@@ -747,6 +1139,12 @@ async function execute(state: QueryState): Promise<{ data: any; error: any }> {
     if (mutation.type === "insert") {
       const row = makeRow(state.table, mutation.row ?? {});
       table.push(row);
+      if (state.table === "community_messages") {
+        const thread = (db["community_threads"] ?? []).find(
+          (candidate) => candidate["id"] === row["thread_id"],
+        );
+        if (thread) thread["updated_at"] = nowIso();
+      }
       resultRows = [row];
     } else if (mutation.type === "update") {
       const matched = applyFilters(table, state.filters);
@@ -1051,6 +1449,50 @@ export const supabase = {
         (r) => r["user_id"] === userId && r["role"] === role,
       );
       return Promise.resolve({ data: hasRole, error: null });
+    }
+    if (name === "get_or_create_private_thread") {
+      const otherUserId = String(args?.["_other_user"] ?? "");
+      if (!otherUserId || otherUserId === DEMO_USER_ID) {
+        return Promise.resolve({
+          data: null,
+          error: new Error("Escolha outro membro para a conversa."),
+        });
+      }
+      if (!(db["profiles"] ?? []).some((profile) => profile["id"] === otherUserId)) {
+        return Promise.resolve({ data: null, error: new Error("Membro não encontrado.") });
+      }
+
+      const threads = (db["community_threads"] ??= []);
+      const members = (db["community_thread_members"] ??= []);
+      const existing = threads.find((thread) => {
+        if (!thread["is_private"]) return false;
+        const threadMembers = members.filter((member) => member["thread_id"] === thread["id"]);
+        return (
+          threadMembers.length === 2 &&
+          threadMembers.some((member) => member["user_id"] === DEMO_USER_ID) &&
+          threadMembers.some((member) => member["user_id"] === otherUserId)
+        );
+      });
+      if (existing) return Promise.resolve({ data: existing["id"], error: null });
+
+      const thread = makeRow("community_threads", {
+        title: "Conversa privada",
+        description: "",
+        is_private: true,
+        created_by: DEMO_USER_ID,
+      });
+      threads.push(thread);
+      members.push({
+        thread_id: thread["id"],
+        user_id: DEMO_USER_ID,
+        created_at: nowIso(),
+      });
+      members.push({
+        thread_id: thread["id"],
+        user_id: otherUserId,
+        created_at: nowIso(),
+      });
+      return Promise.resolve({ data: thread["id"], error: null });
     }
     return Promise.resolve({
       data: null,

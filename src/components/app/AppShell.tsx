@@ -5,10 +5,12 @@ import {
   Clapperboard,
   LogOut,
   Menu,
+  MessagesSquare,
   Package,
   Radio,
   ShieldCheck,
   ShoppingBag,
+  Store,
   UserRound,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -20,6 +22,8 @@ import { supabase } from "@/integrations/supabase/client";
 const NAV = [
   { to: "/trilhas", label: "Trilhas", icon: Clapperboard },
   { to: "/lives", label: "Lives e Hot Seats", icon: Radio },
+  { to: "/comunidade", label: "Comunidade", icon: MessagesSquare },
+  { to: "/marketplace", label: "Marketplace", icon: Store },
   { to: "/loja", label: "Loja", icon: ShoppingBag },
   { to: "/meus-produtos", label: "Meus produtos", icon: Package },
   { to: "/minha-conta", label: "Minha conta", icon: UserRound },

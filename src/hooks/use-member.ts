@@ -7,6 +7,9 @@ export type Member = {
   email: string;
   nome: string;
   telefone: string;
+  avatarUrl: string;
+  cidade: string;
+  estado: string;
   aceiteTermosEm: string | null;
   criadoEm: string;
   isAdmin: boolean;
@@ -19,6 +22,17 @@ export type Member = {
 };
 
 export const memberQueryKey = ["member"] as const;
+
+type ProfileRow = {
+  nome: string | null;
+  email: string | null;
+  telefone: string | null;
+  aceite_termos_em: string | null;
+  created_at: string;
+  avatar_url: string | null;
+  cidade: string | null;
+  estado: string | null;
+};
 
 async function fetchMember(): Promise<Member | null> {
   const { data: userData } = await supabase.auth.getUser();
@@ -37,7 +51,7 @@ async function fetchMember(): Promise<Member | null> {
   ]);
   if (profileRes.error) throw profileRes.error;
 
-  const profile = profileRes.data;
+  const profile = profileRes.data as ProfileRow | null;
   const email = (user.email || "").trim().toLowerCase();
   const isOwner = email === ADMIN_OWNER_EMAIL.toLowerCase();
   const isAdmin = isOwner || (rolesRes.data ?? []).some((r) => r.role === "admin");
@@ -46,6 +60,9 @@ async function fetchMember(): Promise<Member | null> {
     email: user.email || profile?.email || "",
     nome: profile?.nome || (user.user_metadata?.["nome"] as string | undefined) || "",
     telefone: profile?.telefone ?? "",
+    avatarUrl: profile?.avatar_url ?? "",
+    cidade: profile?.cidade ?? "",
+    estado: profile?.estado ?? "",
     aceiteTermosEm: profile?.aceite_termos_em ?? null,
     criadoEm: profile?.created_at ?? user.created_at,
     isAdmin,

@@ -18,8 +18,10 @@ import { Route as RecuperarSenhaRouteImport } from './routes/recuperar-senha'
 import { Route as RedefinirSenhaRouteImport } from './routes/redefinir-senha'
 import { Route as TermosRouteImport } from './routes/termos'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as AuthenticatedComunidadeRouteImport } from './routes/_authenticated/comunidade'
 import { Route as AuthenticatedLivesRouteImport } from './routes/_authenticated/lives'
 import { Route as AuthenticatedLojaRouteImport } from './routes/_authenticated/loja'
+import { Route as AuthenticatedMarketplaceRouteImport } from './routes/_authenticated/marketplace'
 import { Route as AuthenticatedMeusProdutosRouteImport } from './routes/_authenticated/meus-produtos'
 import { Route as AuthenticatedMinhaContaRouteImport } from './routes/_authenticated/minha-conta'
 import { Route as AuthenticatedTrilhasRouteImport } from './routes/_authenticated/trilhas'
@@ -71,6 +73,11 @@ const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedComunidadeRoute = AuthenticatedComunidadeRouteImport.update({
+  id: '/comunidade',
+  path: '/comunidade',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedLivesRoute = AuthenticatedLivesRouteImport.update({
   id: '/lives',
   path: '/lives',
@@ -81,6 +88,12 @@ const AuthenticatedLojaRoute = AuthenticatedLojaRouteImport.update({
   path: '/loja',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedMarketplaceRoute =
+  AuthenticatedMarketplaceRouteImport.update({
+    id: '/marketplace',
+    path: '/marketplace',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedMeusProdutosRoute =
   AuthenticatedMeusProdutosRouteImport.update({
     id: '/meus-produtos',
@@ -122,8 +135,10 @@ export interface FileRoutesByFullPath {
   '/redefinir-senha': typeof RedefinirSenhaRoute
   '/termos': typeof TermosRoute
   '/admin': typeof AuthenticatedAdminRoute
+  '/comunidade': typeof AuthenticatedComunidadeRoute
   '/lives': typeof AuthenticatedLivesRoute
   '/loja': typeof AuthenticatedLojaRouteWithChildren
+  '/marketplace': typeof AuthenticatedMarketplaceRoute
   '/meus-produtos': typeof AuthenticatedMeusProdutosRoute
   '/minha-conta': typeof AuthenticatedMinhaContaRoute
   '/trilhas': typeof AuthenticatedTrilhasRoute
@@ -140,8 +155,10 @@ export interface FileRoutesByTo {
   '/redefinir-senha': typeof RedefinirSenhaRoute
   '/termos': typeof TermosRoute
   '/admin': typeof AuthenticatedAdminRoute
+  '/comunidade': typeof AuthenticatedComunidadeRoute
   '/lives': typeof AuthenticatedLivesRoute
   '/loja': typeof AuthenticatedLojaRouteWithChildren
+  '/marketplace': typeof AuthenticatedMarketplaceRoute
   '/meus-produtos': typeof AuthenticatedMeusProdutosRoute
   '/minha-conta': typeof AuthenticatedMinhaContaRoute
   '/trilhas': typeof AuthenticatedTrilhasRoute
@@ -160,8 +177,10 @@ export interface FileRoutesById {
   '/redefinir-senha': typeof RedefinirSenhaRoute
   '/termos': typeof TermosRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
+  '/_authenticated/comunidade': typeof AuthenticatedComunidadeRoute
   '/_authenticated/lives': typeof AuthenticatedLivesRoute
   '/_authenticated/loja': typeof AuthenticatedLojaRouteWithChildren
+  '/_authenticated/marketplace': typeof AuthenticatedMarketplaceRoute
   '/_authenticated/meus-produtos': typeof AuthenticatedMeusProdutosRoute
   '/_authenticated/minha-conta': typeof AuthenticatedMinhaContaRoute
   '/_authenticated/trilhas': typeof AuthenticatedTrilhasRoute
@@ -180,8 +199,10 @@ export interface FileRouteTypes {
     | '/redefinir-senha'
     | '/termos'
     | '/admin'
+    | '/comunidade'
     | '/lives'
     | '/loja'
+    | '/marketplace'
     | '/meus-produtos'
     | '/minha-conta'
     | '/trilhas'
@@ -198,8 +219,10 @@ export interface FileRouteTypes {
     | '/redefinir-senha'
     | '/termos'
     | '/admin'
+    | '/comunidade'
     | '/lives'
     | '/loja'
+    | '/marketplace'
     | '/meus-produtos'
     | '/minha-conta'
     | '/trilhas'
@@ -217,8 +240,10 @@ export interface FileRouteTypes {
     | '/redefinir-senha'
     | '/termos'
     | '/_authenticated/admin'
+    | '/_authenticated/comunidade'
     | '/_authenticated/lives'
     | '/_authenticated/loja'
+    | '/_authenticated/marketplace'
     | '/_authenticated/meus-produtos'
     | '/_authenticated/minha-conta'
     | '/_authenticated/trilhas'
@@ -304,6 +329,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/comunidade': {
+      id: '/_authenticated/comunidade'
+      path: '/comunidade'
+      fullPath: '/comunidade'
+      preLoaderRoute: typeof AuthenticatedComunidadeRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/lives': {
       id: '/_authenticated/lives'
       path: '/lives'
@@ -316,6 +348,13 @@ declare module '@tanstack/react-router' {
       path: '/loja'
       fullPath: '/loja'
       preLoaderRoute: typeof AuthenticatedLojaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/marketplace': {
+      id: '/_authenticated/marketplace'
+      path: '/marketplace'
+      fullPath: '/marketplace'
+      preLoaderRoute: typeof AuthenticatedMarketplaceRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/meus-produtos': {
@@ -376,8 +415,10 @@ const AuthenticatedLojaRouteWithChildren =
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
+  AuthenticatedComunidadeRoute: typeof AuthenticatedComunidadeRoute
   AuthenticatedLivesRoute: typeof AuthenticatedLivesRoute
   AuthenticatedLojaRoute: typeof AuthenticatedLojaRouteWithChildren
+  AuthenticatedMarketplaceRoute: typeof AuthenticatedMarketplaceRoute
   AuthenticatedMeusProdutosRoute: typeof AuthenticatedMeusProdutosRoute
   AuthenticatedMinhaContaRoute: typeof AuthenticatedMinhaContaRoute
   AuthenticatedTrilhasRoute: typeof AuthenticatedTrilhasRoute
@@ -386,8 +427,10 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
+  AuthenticatedComunidadeRoute: AuthenticatedComunidadeRoute,
   AuthenticatedLivesRoute: AuthenticatedLivesRoute,
   AuthenticatedLojaRoute: AuthenticatedLojaRouteWithChildren,
+  AuthenticatedMarketplaceRoute: AuthenticatedMarketplaceRoute,
   AuthenticatedMeusProdutosRoute: AuthenticatedMeusProdutosRoute,
   AuthenticatedMinhaContaRoute: AuthenticatedMinhaContaRoute,
   AuthenticatedTrilhasRoute: AuthenticatedTrilhasRoute,
