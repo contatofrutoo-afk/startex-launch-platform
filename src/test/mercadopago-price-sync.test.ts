@@ -141,3 +141,21 @@ describe("checkout da assinatura Startex", () => {
     expect(parseSignatureHeader("garbage")).toBeNull();
   });
 });
+
+import { buildSubscriptionTestPreference } from "@/lib/mercadopago-pricing";
+
+describe("assinatura em modo teste", () => {
+  it("cobra a mensalidade de R$ 297 vinculada ao aluno", () => {
+    const payload = buildSubscriptionTestPreference({
+      priceCents: 29700,
+      externalReference: "subscription:user-1",
+      notificationUrl: "https://startexedu.lovable.app/api/public/mercadopago-webhook",
+      statementDescriptor: "STARTEX",
+      successUrl: "https://startexedu.lovable.app/trilhas?assinatura=ok",
+      cancelUrl: "https://startexedu.lovable.app/minha-conta",
+    }) as { items: Array<{ unit_price: number; currency_id: string }>; external_reference: string };
+    expect(payload.items[0]?.unit_price).toBe(297);
+    expect(payload.items[0]?.currency_id).toBe("BRL");
+    expect(payload.external_reference).toBe("subscription:user-1");
+  });
+});

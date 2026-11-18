@@ -37,6 +37,7 @@ export const createMercadoPagoCheckout = createServerFn({ method: "POST" })
           userId: context.userId,
           email,
           backUrl: sameOriginUrl(data.successUrl, "/trilhas?assinatura=ok", origin),
+          cancelUrl: sameOriginUrl(data.cancelUrl, "/minha-conta", origin),
         });
         return { url };
       }

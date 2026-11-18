@@ -170,3 +170,33 @@ export function parseSignatureHeader(header: string): { ts: string; v1: string }
   const v1 = header.match(/v1=([a-f0-9]+)/i)?.[1];
   return ts && v1 ? { ts, v1: v1.toLowerCase() } : null;
 }
+
+export type MercadoPagoSubscriptionTestInput = {
+  priceCents: number;
+  externalReference: string;
+  notificationUrl: string;
+  statementDescriptor: string;
+  successUrl: string;
+  cancelUrl: string;
+};
+
+/**
+ * Modo teste: contas de teste do Mercado Pago só aceitam assinaturas recorrentes
+ * de outra conta de teste. Para o checkout abrir para qualquer membro, a
+ * mensalidade é cobrada como pagamento avulso que libera 30 dias de acesso.
+ */
+export function buildSubscriptionTestPreference(
+  input: MercadoPagoSubscriptionTestInput,
+): Record<string, unknown> {
+  return buildProductPreference({
+    productId: "assinatura-startex",
+    title: "Assinatura Startex — mensal",
+    description: "Acesso de 30 dias à Startex",
+    priceCents: input.priceCents,
+    externalReference: input.externalReference,
+    notificationUrl: input.notificationUrl,
+    statementDescriptor: input.statementDescriptor,
+    successUrl: input.successUrl,
+    cancelUrl: input.cancelUrl,
+  });
+}

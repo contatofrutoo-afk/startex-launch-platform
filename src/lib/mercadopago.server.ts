@@ -3,6 +3,7 @@ import type { Database } from "@/integrations/supabase/types";
 import {
   buildPendingSubscriptionPayload,
   buildProductPreference,
+  buildSubscriptionTestPreference,
   buildSubscriptionPlanPayload,
   isActiveSubscriptionStatus,
   isInactiveSubscriptionStatus,
@@ -113,7 +114,25 @@ export async function createSubscriptionCheckout(input: {
   userId: string;
   email: string;
   backUrl: string;
+  cancelUrl: string;
 }): Promise<string> {
+  if (input.settings.sandbox) {
+    const preference = buildSubscriptionTestPreference({
+      priceCents: input.settings.subscriptionPriceCents,
+      externalReference: `subscription:${input.userId}`,
+      notificationUrl: input.settings.notificationUrl,
+      statementDescriptor: input.settings.statementDescriptor,
+      successUrl: input.backUrl,
+      cancelUrl: input.cancelUrl,
+    });
+    const res = await mpRequest<CheckoutResponse>(
+      input.settings.accessToken,
+      "/checkout/preferences",
+      "POST",
+      preference,
+    );
+    return pickCheckoutUrl(res, true);
+  }
   const payload = buildPendingSubscriptionPayload({
     reason: SUBSCRIPTION_REASON,
     priceCents: input.settings.subscriptionPriceCents,
@@ -243,6 +262,23 @@ export async function syncAuthorizedPayment(admin: Admin, settings: MercadoPagoS
 export async function syncPayment(admin: Admin, settings: MercadoPagoSettings, id: string) {
   const payment = await mpRequest<MpPayment>(settings.accessToken, `/v1/payments/${encodeURIComponent(id)}`);
   if (payment.status !== "approved") return;
+  const reference = String(payment.external_reference ?? "");
+  if (reference.startsWith("subscription:")) {
+    const userId = reference.slice("subscription:".length);
+    if (!userId) return;
+    const { error } = await admin.from("subscriptions").upsert(
+      {
+        user_id: userId,
+        status: "active",
+        current_period_end: subscriptionPeriodEnd(undefined),
+        provider: "mercadopago",
+        provider_subscription_id: `payment:${id}`,
+      },
+      { onConflict: "user_id" },
+    );
+    if (error) throw new Error(error.message);
+    return;
+  }
   const match = String(payment.external_reference ?? "").match(/^product:([^:]+):user:([^:]+)$/);
   if (!match?.[1] || !match[2]) return;
 
