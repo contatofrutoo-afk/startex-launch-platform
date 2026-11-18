@@ -4,6 +4,9 @@ import {
   buildSubscriptionCheckoutPayload,
   buildSubscriptionPlanPayload,
   centsToAmount,
+  isActiveSubscriptionStatus,
+  isInactiveSubscriptionStatus,
+  subscriptionPeriodEnd,
 } from "../../supabase/functions/_shared/mercadopago-pricing";
 import { getPaymentAdapter } from "@/lib/payments";
 
@@ -77,5 +80,21 @@ describe("mercado pago price sync", () => {
     expect(payload.external_reference).toBe("subscription:user-123");
     expect(payload.back_url).toContain("/trilhas?assinatura=ok");
     expect(payload.notification_url).toContain("mercadopago-webhook");
+  });
+
+  it("reconhece os status que liberam e revogam a assinatura", () => {
+    expect(isActiveSubscriptionStatus("authorized")).toBe(true);
+    expect(isActiveSubscriptionStatus("APPROVED")).toBe(true);
+    expect(isActiveSubscriptionStatus("active")).toBe(true);
+    expect(isActiveSubscriptionStatus("pending")).toBe(false);
+    expect(isInactiveSubscriptionStatus("pending")).toBe(false);
+    expect(isInactiveSubscriptionStatus("cancelled")).toBe(true);
+    expect(isInactiveSubscriptionStatus("paused")).toBe(true);
+  });
+
+  it("usa a próxima cobrança ou 30 dias como fim do período", () => {
+    const now = Date.parse("2026-11-01T00:00:00Z");
+    expect(subscriptionPeriodEnd("2026-12-15T00:00:00Z", now)).toBe("2026-12-15T00:00:00.000Z");
+    expect(subscriptionPeriodEnd(undefined, now)).toBe("2026-12-01T00:00:00.000Z");
   });
 });

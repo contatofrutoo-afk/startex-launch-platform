@@ -1,5 +1,10 @@
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import {
+  isActiveSubscriptionStatus,
+  isInactiveSubscriptionStatus,
+  subscriptionPeriodEnd,
+} from "../_shared/mercadopago-pricing.ts";
 
 type SettingsRow = {
   enabled: boolean;
@@ -16,13 +21,13 @@ type MpSubscription = {
   status?: string;
   external_reference?: string;
   next_retry_date?: string;
-  expiration_date?: string;
 };
 
 type MpPayment = {
   status?: string;
   external_reference?: string;
   transaction_amount?: number;
+  subscription_id?: string | number;
 };
 
 class HttpError extends Error {
@@ -108,14 +113,6 @@ async function verifySignature(req: Request, raw: string, secret: string): Promi
   return expected === provided.toLowerCase();
 }
 
-function periodEndFrom(subscription: MpSubscription): string {
-  const candidate = subscription.next_retry_date ?? subscription.expiration_date;
-  const parsed = typeof candidate === "string" ? Date.parse(candidate) : NaN;
-  return Number.isFinite(parsed)
-    ? new Date(parsed).toISOString()
-    : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
-}
-
 async function syncSubscription(
   admin: ReturnType<typeof adminClient>,
   settings: SettingsRow,
@@ -127,12 +124,16 @@ async function syncSubscription(
   const userId = reference.slice("subscription:".length);
   if (!userId) return;
 
-  const active = subscription.status === "authorized";
+  const active = isActiveSubscriptionStatus(subscription.status);
+  if (!active && !isInactiveSubscriptionStatus(subscription.status)) return;
+
   const { error } = await admin.from("subscriptions").upsert(
     {
       user_id: userId,
       status: active ? "active" : "canceled",
-      current_period_end: active ? periodEndFrom(subscription) : null,
+      current_period_end: active ? subscriptionPeriodEnd(subscription.next_retry_date) : null,
+      provider: "mercadopago",
+      provider_subscription_id: id,
     },
     { onConflict: "user_id" },
   );
@@ -156,6 +157,9 @@ async function syncPayment(
         user_id: userId,
         status: "active",
         current_period_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+        provider: "mercadopago",
+        provider_subscription_id:
+          payment.subscription_id === undefined ? undefined : String(payment.subscription_id),
       },
       { onConflict: "user_id" },
     );

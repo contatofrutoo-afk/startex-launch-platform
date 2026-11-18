@@ -1,14 +1,19 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { useEffect, useRef } from "react";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { AlertCircle, Lock } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { LessonCard, LessonRow } from "@/components/app/LessonCard";
 import { SubscribeButton } from "@/components/app/SubscribeButton";
-import { useMember } from "@/hooks/use-member";
+import { memberQueryKey, useMember } from "@/hooks/use-member";
 import { progressPercent, useCatalog } from "@/hooks/use-catalog";
 import { firstName } from "@/lib/format";
 
 export const Route = createFileRoute("/_authenticated/trilhas")({
+  validateSearch: (search: Record<string, unknown>): { assinatura?: "ok" } =>
+    search["assinatura"] === "ok" ? { assinatura: "ok" } : {},
   head: () => ({
     meta: [
       { title: "Trilhas — Startex" },
@@ -23,10 +28,54 @@ export const Route = createFileRoute("/_authenticated/trilhas")({
 });
 
 function TrilhasPage() {
+  const navigate = useNavigate({ from: Route.fullPath });
+  const queryClient = useQueryClient();
   const member = useMember();
   const catalog = useCatalog();
+  const { assinatura } = Route.useSearch();
   const hasAccess = member.data?.hasAccess ?? false;
+  const hasAccessRef = useRef(hasAccess);
   const name = firstName(member.data?.nome);
+
+  useEffect(() => {
+    hasAccessRef.current = hasAccess;
+  }, [hasAccess]);
+
+  useEffect(() => {
+    if (assinatura !== "ok") return;
+
+    let attempts = 0;
+    let finished = false;
+
+    const clearReturnFlag = () => {
+      if (finished) return;
+      finished = true;
+      window.clearInterval(interval);
+      void navigate({ search: {}, replace: true });
+    };
+
+    const refreshAccess = async () => {
+      attempts += 1;
+      await queryClient.invalidateQueries({ queryKey: memberQueryKey, refetchType: "active" });
+      if (hasAccessRef.current) {
+        toast.success("Pagamento confirmado! Acesso liberado.");
+        clearReturnFlag();
+      } else if (attempts >= 15) {
+        toast.info(
+          "Pagamento recebido. Se o acesso não aparecer em instantes, fale com a equipe Startex.",
+        );
+        clearReturnFlag();
+      }
+    };
+
+    const interval = window.setInterval(() => void refreshAccess(), 2000);
+    void refreshAccess();
+
+    return () => {
+      finished = true;
+      window.clearInterval(interval);
+    };
+  }, [assinatura, navigate, queryClient]);
 
   return (
     <div className="space-y-10 pb-16 pt-8">
@@ -48,7 +97,8 @@ function TrilhasPage() {
             <div>
               <p className="font-semibold">Seu acesso às aulas ainda não está ativo</p>
               <p className="text-sm text-muted-foreground">
-                As aulas marcadas como “Amostra grátis” já estão liberadas. Assine para assistir a todas.
+                As aulas marcadas como “Amostra grátis” já estão liberadas. Assine para assistir a
+                todas.
               </p>
             </div>
           </div>
@@ -71,7 +121,9 @@ function TrilhasPage() {
       {catalog.data && catalog.data.tracks.length === 0 && (
         <div className="mx-4 rounded-2xl border border-dashed border-border bg-surface p-10 text-center sm:mx-8">
           <p className="font-display text-lg font-semibold">Nenhuma trilha publicada ainda</p>
-          <p className="mt-1 text-muted-foreground">As primeiras aulas aparecem aqui assim que forem publicadas.</p>
+          <p className="mt-1 text-muted-foreground">
+            As primeiras aulas aparecem aqui assim que forem publicadas.
+          </p>
         </div>
       )}
 
@@ -83,11 +135,10 @@ function TrilhasPage() {
                 const p = catalog.data.progress.get(l.id);
                 return p && !p.completed;
               })
-              .sort(
-                (a, b) =>
-                  (catalog.data.progress.get(b.id)?.updated_at ?? "").localeCompare(
-                    catalog.data.progress.get(a.id)?.updated_at ?? "",
-                  ),
+              .sort((a, b) =>
+                (catalog.data.progress.get(b.id)?.updated_at ?? "").localeCompare(
+                  catalog.data.progress.get(a.id)?.updated_at ?? "",
+                ),
               );
             if (continuing.length === 0) return null;
             return (
@@ -104,7 +155,9 @@ function TrilhasPage() {
             );
           })()}
           {catalog.data.tracks.map((track) => {
-            const done = track.lessons.filter((l) => catalog.data.progress.get(l.id)?.completed).length;
+            const done = track.lessons.filter(
+              (l) => catalog.data.progress.get(l.id)?.completed,
+            ).length;
             return (
               <LessonRow
                 key={track.id}
@@ -136,7 +189,10 @@ function CatalogSkeleton() {
           <Skeleton className="h-7 w-56" />
           <div className="flex gap-4 overflow-hidden">
             {[0, 1, 2, 3].map((i) => (
-              <Skeleton key={i} className="aspect-video w-[72vw] shrink-0 rounded-xl sm:w-[300px]" />
+              <Skeleton
+                key={i}
+                className="aspect-video w-[72vw] shrink-0 rounded-xl sm:w-[300px]"
+              />
             ))}
           </div>
         </div>

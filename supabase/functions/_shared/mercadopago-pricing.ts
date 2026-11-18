@@ -30,6 +30,23 @@ export function centsToAmount(cents: number): number {
   return Math.round(cents) / 100;
 }
 
+export function isActiveSubscriptionStatus(status: string | undefined): boolean {
+  const value = String(status ?? "").toLowerCase();
+  return value === "approved" || value === "authorized" || value === "active";
+}
+
+export function isInactiveSubscriptionStatus(status: string | undefined): boolean {
+  const value = String(status ?? "").toLowerCase();
+  return ["canceled", "cancelled", "expired", "paused", "rejected"].includes(value);
+}
+
+export function subscriptionPeriodEnd(nextRetryDate: string | undefined, now = Date.now()): string {
+  const parsed = typeof nextRetryDate === "string" ? Date.parse(nextRetryDate) : NaN;
+  return Number.isFinite(parsed)
+    ? new Date(parsed).toISOString()
+    : new Date(now + 30 * 24 * 60 * 60 * 1000).toISOString();
+}
+
 export function buildProductPreference(input: MercadoPagoPreferenceInput): Record<string, unknown> {
   return {
     items: [
