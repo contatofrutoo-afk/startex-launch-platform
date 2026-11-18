@@ -141,8 +141,7 @@ export function AdminMercadoPago() {
       return;
     }
     const tokenChanged = Boolean(
-      data &&
-        isMercadoPagoTestToken(data.accessToken) !== isMercadoPagoTestToken(form.accessToken),
+      data && isMercadoPagoTestToken(data.accessToken) !== isMercadoPagoTestToken(form.accessToken),
     );
     const next = {
       ...form,

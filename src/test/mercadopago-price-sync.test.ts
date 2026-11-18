@@ -136,7 +136,12 @@ describe("checkout da assinatura Startex", () => {
       status: string;
       payer_email: string;
       external_reference: string;
-      auto_recurring: { transaction_amount: number; frequency: number; frequency_type: string; currency_id: string };
+      auto_recurring: {
+        transaction_amount: number;
+        frequency: number;
+        frequency_type: string;
+        currency_id: string;
+      };
     };
     expect(payload.auto_recurring.transaction_amount).toBe(297);
     expect(payload.auto_recurring.frequency).toBe(1);
@@ -148,7 +153,9 @@ describe("checkout da assinatura Startex", () => {
 
   it("usa o site publicado como retorno quando a origem não é https", () => {
     expect(checkoutOrigin("http://localhost:8080")).toBe("https://startexedu.lovable.app");
-    expect(checkoutOrigin("https://startexedu.lovable.app/")).toBe("https://startexedu.lovable.app");
+    expect(checkoutOrigin("https://startexedu.lovable.app/")).toBe(
+      "https://startexedu.lovable.app",
+    );
   });
 
   it("monta o texto assinado do webhook no formato do Mercado Pago", () => {

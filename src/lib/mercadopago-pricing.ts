@@ -152,7 +152,11 @@ export function checkoutOrigin(requestOrigin: string | null | undefined): string
 }
 
 /** Mantém a URL de retorno no mesmo domínio do checkout. */
-export function sameOriginUrl(value: string | undefined, fallbackPath: string, origin: string): string {
+export function sameOriginUrl(
+  value: string | undefined,
+  fallbackPath: string,
+  origin: string,
+): string {
   if (!value) return `${origin}${fallbackPath}`;
   try {
     const parsed = new URL(value, origin);

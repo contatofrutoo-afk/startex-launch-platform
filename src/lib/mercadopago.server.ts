@@ -69,7 +69,8 @@ export async function loadMercadoPagoSettings(admin: Admin): Promise<MercadoPago
 export function requireUsableSettings(settings: MercadoPagoSettings | null): MercadoPagoSettings {
   if (!settings) throw new MercadoPagoError("Configuração do Mercado Pago não encontrada.");
   if (!settings.enabled) throw new MercadoPagoError("Integração Mercado Pago desativada no admin.");
-  if (!settings.accessToken) throw new MercadoPagoError("Access Token do Mercado Pago não configurado.");
+  if (!settings.accessToken)
+    throw new MercadoPagoError("Access Token do Mercado Pago não configurado.");
   return settings;
 }
 
@@ -146,7 +147,12 @@ export async function createSubscriptionCheckout(input: {
     externalReference: `subscription:${input.userId}`,
     backUrl: input.backUrl,
   });
-  const res = await mpRequest<CheckoutResponse>(input.settings.accessToken, "/preapproval", "POST", payload);
+  const res = await mpRequest<CheckoutResponse>(
+    input.settings.accessToken,
+    "/preapproval",
+    "POST",
+    payload,
+  );
   // Assinaturas sempre usam init_point (não existe sandbox_init_point para preapproval).
   return pickCheckoutUrl(res, false);
 }
@@ -167,7 +173,9 @@ export async function createProductCheckout(input: {
   if (error) throw new Error(error.message);
   if (!product || !product.active) throw new MercadoPagoError("Produto não encontrado.", 404);
 
-  const { data: hasAccess } = await input.admin.rpc("has_active_access", { _user_id: input.userId });
+  const { data: hasAccess } = await input.admin.rpc("has_active_access", {
+    _user_id: input.userId,
+  });
   const priceCents =
     hasAccess === true && typeof product.member_price_cents === "number"
       ? product.member_price_cents
@@ -207,13 +215,23 @@ export async function syncSubscriptionPlan(
   });
   if (settings.subscriptionPlanId) {
     try {
-      await mpRequest(settings.accessToken, `/preapproval_plan/${settings.subscriptionPlanId}`, "PUT", payload);
+      await mpRequest(
+        settings.accessToken,
+        `/preapproval_plan/${settings.subscriptionPlanId}`,
+        "PUT",
+        payload,
+      );
       return settings.subscriptionPlanId;
     } catch (error) {
       if (!shouldRecreateExternalId(error)) throw error;
     }
   }
-  const created = await mpRequest<{ id?: string }>(settings.accessToken, "/preapproval_plan", "POST", payload);
+  const created = await mpRequest<{ id?: string }>(
+    settings.accessToken,
+    "/preapproval_plan",
+    "POST",
+    payload,
+  );
   if (!created.id) throw new MercadoPagoError("Mercado Pago não retornou o ID do plano.", 502);
   const { error } = await admin
     .from("payment_settings")
@@ -230,7 +248,12 @@ export async function verifyCredentials(settings: MercadoPagoSettings): Promise<
 
 // ---------- Webhook ----------
 
-type MpPreapproval = { status?: string; external_reference?: string; next_payment_date?: string; next_retry_date?: string };
+type MpPreapproval = {
+  status?: string;
+  external_reference?: string;
+  next_payment_date?: string;
+  next_retry_date?: string;
+};
 type MpPayment = {
   status?: string;
   external_reference?: string;
@@ -239,7 +262,10 @@ type MpPayment = {
 type MpAuthorizedPayment = { preapproval_id?: string };
 
 export async function syncPreapproval(admin: Admin, settings: MercadoPagoSettings, id: string) {
-  const sub = await mpRequest<MpPreapproval>(settings.accessToken, `/preapproval/${encodeURIComponent(id)}`);
+  const sub = await mpRequest<MpPreapproval>(
+    settings.accessToken,
+    `/preapproval/${encodeURIComponent(id)}`,
+  );
   const reference = String(sub.external_reference ?? "");
   if (!reference.startsWith("subscription:")) return;
   const userId = reference.slice("subscription:".length);
@@ -262,7 +288,11 @@ export async function syncPreapproval(admin: Admin, settings: MercadoPagoSetting
   if (error) throw new Error(error.message);
 }
 
-export async function syncAuthorizedPayment(admin: Admin, settings: MercadoPagoSettings, id: string) {
+export async function syncAuthorizedPayment(
+  admin: Admin,
+  settings: MercadoPagoSettings,
+  id: string,
+) {
   const ap = await mpRequest<MpAuthorizedPayment>(
     settings.accessToken,
     `/authorized_payments/${encodeURIComponent(id)}`,
@@ -271,7 +301,10 @@ export async function syncAuthorizedPayment(admin: Admin, settings: MercadoPagoS
 }
 
 export async function syncPayment(admin: Admin, settings: MercadoPagoSettings, id: string) {
-  const payment = await mpRequest<MpPayment>(settings.accessToken, `/v1/payments/${encodeURIComponent(id)}`);
+  const payment = await mpRequest<MpPayment>(
+    settings.accessToken,
+    `/v1/payments/${encodeURIComponent(id)}`,
+  );
   if (payment.status !== "approved") return;
   const reference = String(payment.external_reference ?? "");
   if (reference.startsWith("subscription:")) {
