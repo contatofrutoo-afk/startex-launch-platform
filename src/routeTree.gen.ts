@@ -28,6 +28,7 @@ import { Route as AuthenticatedTrilhasRouteImport } from './routes/_authenticate
 import { Route as AdminEntrarRouteImport } from './routes/admin.entrar'
 import { Route as AuthenticatedAulaIdRouteImport } from './routes/_authenticated/aula.$id'
 import { Route as AuthenticatedLojaSlugRouteImport } from './routes/_authenticated/loja.$slug'
+import { Route as ApiPublicMercadopagoWebhookRouteImport } from './routes/api/public/mercadopago-webhook'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -125,6 +126,12 @@ const AuthenticatedLojaSlugRoute = AuthenticatedLojaSlugRouteImport.update({
   path: '/$slug',
   getParentRoute: () => AuthenticatedLojaRoute,
 } as any)
+const ApiPublicMercadopagoWebhookRoute =
+  ApiPublicMercadopagoWebhookRouteImport.update({
+    id: '/api/public/mercadopago-webhook',
+    path: '/api/public/mercadopago-webhook',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -145,6 +152,7 @@ export interface FileRoutesByFullPath {
   '/admin/entrar': typeof AdminEntrarRoute
   '/aula/$id': typeof AuthenticatedAulaIdRoute
   '/loja/$slug': typeof AuthenticatedLojaSlugRoute
+  '/api/public/mercadopago-webhook': typeof ApiPublicMercadopagoWebhookRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -165,6 +173,7 @@ export interface FileRoutesByTo {
   '/admin/entrar': typeof AdminEntrarRoute
   '/aula/$id': typeof AuthenticatedAulaIdRoute
   '/loja/$slug': typeof AuthenticatedLojaSlugRoute
+  '/api/public/mercadopago-webhook': typeof ApiPublicMercadopagoWebhookRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -187,6 +196,7 @@ export interface FileRoutesById {
   '/admin/entrar': typeof AdminEntrarRoute
   '/_authenticated/aula/$id': typeof AuthenticatedAulaIdRoute
   '/_authenticated/loja/$slug': typeof AuthenticatedLojaSlugRoute
+  '/api/public/mercadopago-webhook': typeof ApiPublicMercadopagoWebhookRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -209,6 +219,7 @@ export interface FileRouteTypes {
     | '/admin/entrar'
     | '/aula/$id'
     | '/loja/$slug'
+    | '/api/public/mercadopago-webhook'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -229,6 +240,7 @@ export interface FileRouteTypes {
     | '/admin/entrar'
     | '/aula/$id'
     | '/loja/$slug'
+    | '/api/public/mercadopago-webhook'
   id:
     | '__root__'
     | '/'
@@ -250,6 +262,7 @@ export interface FileRouteTypes {
     | '/admin/entrar'
     | '/_authenticated/aula/$id'
     | '/_authenticated/loja/$slug'
+    | '/api/public/mercadopago-webhook'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -262,6 +275,7 @@ export interface RootRouteChildren {
   RedefinirSenhaRoute: typeof RedefinirSenhaRoute
   TermosRoute: typeof TermosRoute
   AdminEntrarRoute: typeof AdminEntrarRoute
+  ApiPublicMercadopagoWebhookRoute: typeof ApiPublicMercadopagoWebhookRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -399,6 +413,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedLojaSlugRouteImport
       parentRoute: typeof AuthenticatedLojaRoute
     }
+    '/api/public/mercadopago-webhook': {
+      id: '/api/public/mercadopago-webhook'
+      path: '/api/public/mercadopago-webhook'
+      fullPath: '/api/public/mercadopago-webhook'
+      preLoaderRoute: typeof ApiPublicMercadopagoWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -450,6 +471,7 @@ const rootRouteChildren: RootRouteChildren = {
   RedefinirSenhaRoute: RedefinirSenhaRoute,
   TermosRoute: TermosRoute,
   AdminEntrarRoute: AdminEntrarRoute,
+  ApiPublicMercadopagoWebhookRoute: ApiPublicMercadopagoWebhookRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

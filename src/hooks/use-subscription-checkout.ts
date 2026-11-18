@@ -10,6 +10,7 @@ export function useSubscriptionCheckout() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [unavailable, setUnavailable] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
 
   const startCheckout = useCallback(async () => {
     setLoading(true);
@@ -25,8 +26,10 @@ export function useSubscriptionCheckout() {
         successUrl: `${window.location.origin}/trilhas?assinatura=ok`,
         cancelUrl: `${window.location.origin}/minha-conta`,
       });
-      if ("unavailable" in res) setUnavailable(true);
-      else window.location.href = res.url;
+      if ("unavailable" in res) {
+        setMessage(res.message);
+        setUnavailable(true);
+      } else window.location.href = res.url;
     } catch {
       toast.error("Não foi possível iniciar o pagamento.");
     } finally {
@@ -34,7 +37,7 @@ export function useSubscriptionCheckout() {
     }
   }, [navigate]);
 
-  return { startCheckout, loading, unavailable, setUnavailable };
+  return { startCheckout, loading, unavailable, setUnavailable, message };
 }
 
 export function useResumeSubscriptionCheckout() {

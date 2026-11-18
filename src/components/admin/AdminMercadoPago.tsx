@@ -20,6 +20,7 @@ import {
 } from "@/lib/payment-settings";
 import { formatDateTimeSP } from "@/lib/format";
 import { syncMercadoPagoPrices } from "@/lib/mercadopago-sync";
+import { PUBLISHED_APP_URL } from "@/lib/mercadopago-pricing";
 
 function toCents(value: string): number {
   const parsed = Number(value.replace(/\./g, "").replace(",", "."));
@@ -87,10 +88,7 @@ function SecretField({
 export function AdminMercadoPago() {
   const queryClient = useQueryClient();
   const { data, isLoading } = usePaymentSettings();
-  const webhookUrl = useMemo(
-    () => mercadoPagoWebhookUrl(String(import.meta.env["VITE_SUPABASE_URL"] ?? "")),
-    [],
-  );
+  const webhookUrl = useMemo(() => mercadoPagoWebhookUrl(PUBLISHED_APP_URL), []);
   const [form, setForm] = useState<PaymentSettings>(() => defaultPaymentSettings(webhookUrl));
   const [subscriptionPrice, setSubscriptionPrice] = useState(() =>
     fromCents(defaultPaymentSettings(webhookUrl).subscriptionPriceCents),
@@ -153,9 +151,13 @@ export function AdminMercadoPago() {
       if (next.enabled) {
         try {
           await syncMercadoPagoPrices({ kind: "subscription" });
-          toast.success("Configuração salva e preço da assinatura sincronizado.");
-        } catch {
-          toast.warning("Configuração salva, mas falhou ao sincronizar o preço no Mercado Pago.");
+          toast.success("Configuração salva e conexão com o Mercado Pago confirmada.");
+        } catch (error) {
+          toast.warning(
+            error instanceof Error
+              ? `Configuração salva, mas o Mercado Pago recusou: ${error.message}`
+              : "Configuração salva, mas falhou ao falar com o Mercado Pago.",
+          );
         }
       } else {
         toast.success("Configuração do Mercado Pago salva.");

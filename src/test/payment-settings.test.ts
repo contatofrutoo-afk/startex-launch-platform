@@ -9,8 +9,8 @@ import {
 
 describe("payment settings", () => {
   it("monta a URL do webhook sem barras duplicadas", () => {
-    expect(mercadoPagoWebhookUrl("https://app.supabase.co/")).toBe(
-      "https://app.supabase.co/functions/v1/mercadopago-webhook",
+    expect(mercadoPagoWebhookUrl("https://startexedu.lovable.app/")).toBe(
+      "https://startexedu.lovable.app/api/public/mercadopago-webhook",
     );
   });
 

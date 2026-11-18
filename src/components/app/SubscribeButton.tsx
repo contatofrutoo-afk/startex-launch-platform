@@ -19,7 +19,7 @@ type SubscribeButtonProps = Pick<ButtonProps, "size" | "className"> & {
 export function SubscribeButton({ size = "default", className, label }: SubscribeButtonProps) {
   const priceCents = useSubscriptionPriceCents();
   const price = formatBRL(priceCents, { compact: true });
-  const { startCheckout, loading, unavailable, setUnavailable } = useSubscriptionCheckout();
+  const { startCheckout, loading, unavailable, setUnavailable, message } = useSubscriptionCheckout();
 
   return (
     <>
@@ -37,8 +37,9 @@ export function SubscribeButton({ size = "default", className, label }: Subscrib
           <DialogHeader>
             <DialogTitle>Assinatura Startex — {price}/mês</DialogTitle>
             <DialogDescription>
-              O pagamento via Mercado Pago não está disponível neste momento. Tente novamente em
-              instantes ou fale com a equipe Startex para liberação manual.
+              {message ??
+                "O pagamento via Mercado Pago não está disponível neste momento."}{" "}
+              Tente novamente em instantes ou fale com a equipe Startex para liberação manual.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>

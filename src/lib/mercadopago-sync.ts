@@ -1,35 +1,12 @@
-import { supabase } from "@/integrations/supabase/client";
+import { syncMercadoPago, type MercadoPagoSyncResult } from "@/lib/mercadopago.functions";
 
 export type MercadoPagoSyncKind = "product" | "subscription" | "all";
-
-export type MercadoPagoSyncResult = {
-  ok: boolean;
-  products: number;
-  subscription: boolean;
-  planId?: string | null;
-};
-
-type InvokeResponse<T> = {
-  data: T | null;
-  error: { message: string } | null;
-};
-
-type FunctionsClient = {
-  invoke(
-    name: string,
-    options: { body: Record<string, unknown> },
-  ): PromiseLike<InvokeResponse<MercadoPagoSyncResult>>;
-};
-
-const client = supabase as unknown as { functions: FunctionsClient };
+export type { MercadoPagoSyncResult };
 
 export async function syncMercadoPagoPrices(
   input: { kind: MercadoPagoSyncKind; productId?: string } = { kind: "all" },
 ): Promise<MercadoPagoSyncResult> {
-  const { data, error } = await client.functions.invoke("mercadopago-sync-price", {
-    body: { ...input },
-  });
-  if (error) throw error;
-  if (!data?.ok) throw new Error("A sincronização não foi concluída.");
-  return data;
+  const result = await syncMercadoPago({ data: input });
+  if (!result.ok) throw new Error(result.error ?? "A sincronização não foi concluída.");
+  return result;
 }

@@ -51,7 +51,7 @@ function asText(value: unknown): string {
 }
 
 export function mercadoPagoWebhookUrl(baseUrl: string): string {
-  return `${baseUrl.replace(/\/+$/, "")}/functions/v1/mercadopago-webhook`;
+  return `${baseUrl.replace(/\/+$/, "")}/api/public/mercadopago-webhook`;
 }
 
 export function paymentSettingsFromRow(row: PaymentSettingsRow | null): PaymentSettings {

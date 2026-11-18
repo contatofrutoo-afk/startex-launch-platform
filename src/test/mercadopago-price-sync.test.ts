@@ -7,7 +7,7 @@ import {
   isActiveSubscriptionStatus,
   isInactiveSubscriptionStatus,
   subscriptionPeriodEnd,
-} from "../../supabase/functions/_shared/mercadopago-pricing";
+} from "@/lib/mercadopago-pricing";
 import { getPaymentAdapter } from "@/lib/payments";
 
 describe("mercado pago price sync", () => {
@@ -96,5 +96,48 @@ describe("mercado pago price sync", () => {
     const now = Date.parse("2026-11-01T00:00:00Z");
     expect(subscriptionPeriodEnd("2026-12-15T00:00:00Z", now)).toBe("2026-12-15T00:00:00.000Z");
     expect(subscriptionPeriodEnd(undefined, now)).toBe("2026-12-01T00:00:00.000Z");
+  });
+});
+
+import {
+  buildPendingSubscriptionPayload,
+  checkoutOrigin,
+  webhookSignatureManifest,
+  parseSignatureHeader,
+} from "@/lib/mercadopago-pricing";
+
+describe("checkout da assinatura Startex", () => {
+  it("cobra R$ 297 por mês em reais, vinculado ao aluno", () => {
+    const payload = buildPendingSubscriptionPayload({
+      reason: "Assinatura Startex",
+      priceCents: 29700,
+      payerEmail: "aluno@exemplo.com",
+      externalReference: "subscription:user-1",
+      backUrl: "https://startexedu.lovable.app/trilhas?assinatura=ok",
+    }) as {
+      status: string;
+      payer_email: string;
+      external_reference: string;
+      auto_recurring: { transaction_amount: number; frequency: number; frequency_type: string; currency_id: string };
+    };
+    expect(payload.auto_recurring.transaction_amount).toBe(297);
+    expect(payload.auto_recurring.frequency).toBe(1);
+    expect(payload.auto_recurring.frequency_type).toBe("months");
+    expect(payload.auto_recurring.currency_id).toBe("BRL");
+    expect(payload.status).toBe("pending");
+    expect(payload.external_reference).toBe("subscription:user-1");
+  });
+
+  it("usa o site publicado como retorno quando a origem não é https", () => {
+    expect(checkoutOrigin("http://localhost:8080")).toBe("https://startexedu.lovable.app");
+    expect(checkoutOrigin("https://startexedu.lovable.app/")).toBe("https://startexedu.lovable.app");
+  });
+
+  it("monta o texto assinado do webhook no formato do Mercado Pago", () => {
+    expect(webhookSignatureManifest({ dataId: "ABC123", requestId: "req-1", ts: "1700" })).toBe(
+      "id:abc123;request-id:req-1;ts:1700;",
+    );
+    expect(parseSignatureHeader("ts=1700,v1=ABCDEF")).toEqual({ ts: "1700", v1: "abcdef" });
+    expect(parseSignatureHeader("garbage")).toBeNull();
   });
 });

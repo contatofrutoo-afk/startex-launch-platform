@@ -1,3 +1,5 @@
+import { createMercadoPagoCheckout } from "@/lib/mercadopago.functions";
+
 export type PaymentProvider = "stripe" | "mercadopago" | "manual" | "pix_future";
 
 export type CheckoutKind = "subscription" | "product";
@@ -60,14 +62,9 @@ export const stripeAdapter: PaymentAdapter = {
 export const mercadopagoAdapter: PaymentAdapter = {
   provider: "mercadopago",
   async createCheckout(req) {
-    const { supabase } = await import("@/integrations/supabase/client");
-    const { data, error } = await supabase.functions.invoke("mercadopago-checkout", { body: req });
-    if (error || !data?.url)
-      return {
-        unavailable: true,
-        message: error?.message ?? "Não foi possível iniciar o pagamento no Mercado Pago.",
-      };
-    return { url: data.url as string };
+    const res = await createMercadoPagoCheckout({ data: req });
+    if ("url" in res) return { url: res.url };
+    return { unavailable: true, message: res.error };
   },
   async openCustomerPortal() {
     return {
