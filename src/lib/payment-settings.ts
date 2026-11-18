@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import { SUBSCRIPTION_PRICE_CENTS } from "@/lib/format";
 
 export const MERCADO_PAGO_PROVIDER = "mercadopago";
 export const paymentSettingsKey = ["payment-settings", MERCADO_PAGO_PROVIDER] as const;
@@ -14,6 +15,7 @@ export type PaymentSettings = {
   integratorId: string;
   siteId: string;
   subscriptionPlanId: string;
+  subscriptionPriceCents: number;
   pixKey: string;
   statementDescriptor: string;
   notificationUrl: string;
@@ -64,6 +66,10 @@ export function paymentSettingsFromRow(row: PaymentSettingsRow | null): PaymentS
     integratorId: asText(row?.["integrator_id"]),
     siteId: asText(row?.["site_id"]) || "MLB",
     subscriptionPlanId: asText(row?.["subscription_plan_id"]),
+    subscriptionPriceCents:
+      typeof row?.["subscription_price_cents"] === "number"
+        ? row["subscription_price_cents"]
+        : SUBSCRIPTION_PRICE_CENTS,
     pixKey: asText(row?.["pix_key"]),
     statementDescriptor: asText(row?.["statement_descriptor"]),
     notificationUrl: asText(row?.["notification_url"]),
@@ -83,6 +89,7 @@ export function paymentSettingsToRow(settings: PaymentSettings): PaymentSettings
     integrator_id: settings.integratorId.trim(),
     site_id: settings.siteId.trim().toUpperCase() || "MLB",
     subscription_plan_id: settings.subscriptionPlanId.trim(),
+    subscription_price_cents: Math.max(0, Math.round(settings.subscriptionPriceCents)),
     pix_key: settings.pixKey.trim(),
     statement_descriptor: settings.statementDescriptor.trim(),
     notification_url: settings.notificationUrl.trim(),
@@ -101,6 +108,7 @@ export function defaultPaymentSettings(baseUrl = ""): PaymentSettings {
     integratorId: "",
     siteId: "MLB",
     subscriptionPlanId: "",
+    subscriptionPriceCents: SUBSCRIPTION_PRICE_CENTS,
     pixKey: "",
     statementDescriptor: "STARTEX",
     notificationUrl: mercadoPagoWebhookUrl(baseUrl),

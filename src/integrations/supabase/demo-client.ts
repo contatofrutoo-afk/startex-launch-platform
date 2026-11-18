@@ -758,6 +758,7 @@ const db: Record<string, Row[]> = {
       integrator_id: "",
       site_id: "MLB",
       subscription_plan_id: "",
+      subscription_price_cents: 29700,
       pix_key: "",
       statement_descriptor: "STARTEX",
       notification_url: "",
@@ -1053,7 +1054,12 @@ function makeRow(table: string, input: Row): Row {
     if (row["position"] === undefined) row["position"] = 1;
   }
   if (table === "sessions" && row["type"] === undefined) row["type"] = "tira_duvidas";
-  if (table === "products" && row["active"] === undefined) row["active"] = true;
+  if (table === "products") {
+    if (row["active"] === undefined) row["active"] = true;
+    if (row["mercadopago_preference_id"] === undefined) row["mercadopago_preference_id"] = null;
+    if (row["mercadopago_member_preference_id"] === undefined) row["mercadopago_member_preference_id"] = null;
+    if (row["mercadopago_synced_at"] === undefined) row["mercadopago_synced_at"] = null;
+  }
   if (table === "orders" && row["status"] === undefined) row["status"] = "pending";
   if (table === "subscriptions") {
     if (row["status"] === undefined) row["status"] = "inactive";
@@ -1088,6 +1094,7 @@ function makeRow(table: string, input: Row): Row {
     if (row["integrator_id"] === undefined) row["integrator_id"] = "";
     if (row["site_id"] === undefined) row["site_id"] = "MLB";
     if (row["subscription_plan_id"] === undefined) row["subscription_plan_id"] = "";
+    if (row["subscription_price_cents"] === undefined) row["subscription_price_cents"] = 29700;
     if (row["pix_key"] === undefined) row["pix_key"] = "";
     if (row["statement_descriptor"] === undefined) row["statement_descriptor"] = "STARTEX";
     if (row["notification_url"] === undefined) row["notification_url"] = "";
@@ -1461,6 +1468,35 @@ const functions = {
       return { data: { url: body["returnUrl"] ?? "/minha-conta" }, error: null };
     }
 
+    if (name === "mercadopago-sync-price") {
+      const settings = (db["payment_settings"] ?? []).find(
+        (row) => row["provider"] === "mercadopago",
+      );
+      const products = db["products"] ?? [];
+      if (body["kind"] === "all") {
+        for (const product of products) {
+          product["mercadopago_preference_id"] = `demo_pref_${product["id"]}`;
+          product["mercadopago_synced_at"] = nowIso();
+        }
+      } else if (body["kind"] === "product") {
+        const product = products.find((row) => row["id"] === body["productId"]);
+        if (product) {
+          product["mercadopago_preference_id"] = `demo_pref_${product["id"]}`;
+          product["mercadopago_synced_at"] = nowIso();
+        }
+      }
+      if (settings) settings["subscription_plan_id"] ||= "demo_plan_subscription";
+      return {
+        data: {
+          ok: true,
+          products: body["kind"] === "product" ? 1 : products.length,
+          subscription: body["kind"] !== "product",
+          planId: settings?.["subscription_plan_id"] ?? "demo_plan_subscription",
+        },
+        error: null,
+      };
+    }
+
     return { data: null, error: new Error(`Função não disponível no modo demo: ${name}`) };
   },
 };
@@ -1484,6 +1520,22 @@ export const supabase = {
         (r) => r["user_id"] === userId && r["role"] === role,
       );
       return Promise.resolve({ data: hasRole, error: null });
+    }
+    if (name === "get_public_subscription_price") {
+      const setting = (db["payment_settings"] ?? []).find(
+        (row) => row["provider"] === "mercadopago" && row["enabled"] === true,
+      );
+      return Promise.resolve({
+        data: setting
+          ? [
+              {
+                price_cents: setting["subscription_price_cents"] ?? 29700,
+                updated_at: setting["updated_at"] ?? null,
+              },
+            ]
+          : [],
+        error: null,
+      });
     }
     if (name === "get_or_create_private_thread") {
       const otherUserId = String(args?.["_other_user"] ?? "");

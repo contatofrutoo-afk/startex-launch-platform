@@ -12,6 +12,9 @@ export type Product = {
   cover_url: string | null;
   active: boolean;
   created_at?: string;
+  mercadopago_preference_id?: string | null;
+  mercadopago_member_preference_id?: string | null;
+  mercadopago_synced_at?: string | null;
 };
 
 export type OrderStatus = "pending" | "paid" | "canceled" | "refunded";
@@ -53,7 +56,8 @@ export function effectivePriceCents(
   product: Pick<Product, "price_cents" | "member_price_cents">,
   hasActiveSubscription: boolean,
 ): number {
-  if (hasActiveSubscription && typeof product.member_price_cents === "number") return product.member_price_cents;
+  if (hasActiveSubscription && typeof product.member_price_cents === "number")
+    return product.member_price_cents;
   return product.price_cents;
 }
 

@@ -1,0 +1,50 @@
+import { describe, expect, it } from "vitest";
+import {
+  buildProductPreference,
+  buildSubscriptionPlanPayload,
+  centsToAmount,
+} from "../../supabase/functions/_shared/mercadopago-pricing";
+
+describe("mercado pago price sync", () => {
+  it("converts cents to reais", () => {
+    expect(centsToAmount(29700)).toBe(297);
+    expect(centsToAmount(3990)).toBe(39.9);
+  });
+
+  it("builds a product preference with the current price", () => {
+    const payload = buildProductPreference({
+      productId: "prod-1",
+      title: "Ebook",
+      description: "Material digital",
+      priceCents: 4990,
+      externalReference: "product:prod-1",
+      notificationUrl: "https://app.supabase.co/functions/v1/mercadopago-webhook",
+      statementDescriptor: "STARTEX",
+      successUrl: "https://startex.com.br/meus-produtos?compra=ok",
+      cancelUrl: "https://startex.com.br/loja",
+    }) as {
+      items: Array<{ unit_price: number; currency_id: string }>;
+      external_reference: string;
+      notification_url: string;
+    };
+
+    expect(payload.items[0]?.unit_price).toBe(49.9);
+    expect(payload.items[0]?.currency_id).toBe("BRL");
+    expect(payload.external_reference).toBe("product:prod-1");
+    expect(payload.notification_url).toContain("mercadopago-webhook");
+  });
+
+  it("builds the subscription plan update with the monthly amount", () => {
+    const payload = buildSubscriptionPlanPayload({
+      reason: "Assinatura Startex",
+      priceCents: 29700,
+      backUrl: "https://startex.com.br/trilhas?assinatura=ok",
+    }) as {
+      auto_recurring: { transaction_amount: number; frequency: number; frequency_type: string };
+    };
+
+    expect(payload.auto_recurring.transaction_amount).toBe(297);
+    expect(payload.auto_recurring.frequency).toBe(1);
+    expect(payload.auto_recurring.frequency_type).toBe("months");
+  });
+});

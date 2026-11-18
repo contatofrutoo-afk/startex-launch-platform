@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { LegalPage } from "@/components/site/LegalPage";
-import { SUBSCRIPTION_PRICE_CENTS, formatBRL } from "@/lib/format";
+import { formatBRL } from "@/lib/format";
+import { useSubscriptionPriceCents } from "@/hooks/use-subscription-price";
 
 export const Route = createFileRoute("/termos")({
   head: () => ({
@@ -13,7 +14,12 @@ export const Route = createFileRoute("/termos")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: () => (
+  component: TermsPage,
+});
+
+function TermsPage() {
+  const priceCents = useSubscriptionPriceCents();
+  return (
     <LegalPage title="Termos de Uso" updated="16/11/2026">
       <h2>1. O serviço</h2>
       <p>
@@ -28,8 +34,8 @@ export const Route = createFileRoute("/termos")({
       </p>
       <h2>3. Assinatura e pagamento</h2>
       <p>
-        A assinatura custa {formatBRL(SUBSCRIPTION_PRICE_CENTS)} por mês, com cobrança recorrente
-        mensal. Você pode cancelar a qualquer momento; o acesso continua até o fim do período pago.
+        A assinatura custa {formatBRL(priceCents)} por mês, com cobrança recorrente mensal. Você
+        pode cancelar a qualquer momento; o acesso continua até o fim do período pago.
       </p>
       <h2>4. Direito de arrependimento</h2>
       <p>
@@ -42,11 +48,14 @@ export const Route = createFileRoute("/termos")({
         arquivos e ferramentas adquiridos.
       </p>
       <h2>6. Propriedade intelectual</h2>
-      <p>Aulas, materiais e marcas pertencem à Startex ou a seus licenciantes. Não é permitido gravar ou compartilhar o conteúdo.</p>
+      <p>
+        Aulas, materiais e marcas pertencem à Startex ou a seus licenciantes. Não é permitido gravar
+        ou compartilhar o conteúdo.
+      </p>
       <h2>7. Contato</h2>
       <p>
         Dúvidas: <a href="mailto:contato@startex.com.br">contato@startex.com.br</a>.
       </p>
     </LegalPage>
-  ),
-});
+  );
+}

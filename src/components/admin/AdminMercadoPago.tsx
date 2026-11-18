@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { Copy, CreditCard, Eye, EyeOff, Loader2, Save, ShieldCheck } from "lucide-react";
+import { Copy, CreditCard, Eye, EyeOff, Loader2, RefreshCw, Save, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import { usePaymentSettings } from "@/hooks/use-payment-settings";
+import { subscriptionPriceKey } from "@/hooks/use-subscription-price";
 import {
   defaultPaymentSettings,
   isMercadoPagoConfigured,
@@ -18,6 +19,19 @@ import {
   type PaymentSettings,
 } from "@/lib/payment-settings";
 import { formatDateTimeSP } from "@/lib/format";
+import { syncMercadoPagoPrices } from "@/lib/mercadopago-sync";
+
+function toCents(value: string): number {
+  const parsed = Number(value.replace(/\./g, "").replace(",", "."));
+  return Math.round((Number.isFinite(parsed) ? parsed : 0) * 100);
+}
+
+function fromCents(cents: number): string {
+  return new Intl.NumberFormat("pt-BR", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(cents / 100);
+}
 
 type SecretFieldProps = {
   id: string;
@@ -78,11 +92,18 @@ export function AdminMercadoPago() {
     [],
   );
   const [form, setForm] = useState<PaymentSettings>(() => defaultPaymentSettings(webhookUrl));
+  const [subscriptionPrice, setSubscriptionPrice] = useState(() =>
+    fromCents(defaultPaymentSettings(webhookUrl).subscriptionPriceCents),
+  );
   const [showSecrets, setShowSecrets] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [syncing, setSyncing] = useState(false);
 
   useEffect(() => {
-    if (data) setForm(data);
+    if (data) {
+      setForm(data);
+      setSubscriptionPrice(fromCents(data.subscriptionPriceCents));
+    }
   }, [data]);
 
   function update<K extends keyof PaymentSettings>(key: K, value: PaymentSettings[K]) {
@@ -98,6 +119,22 @@ export function AdminMercadoPago() {
     }
   }
 
+  async function syncAll() {
+    setSyncing(true);
+    try {
+      const result = await syncMercadoPagoPrices({ kind: "all" });
+      toast.success(`Preços sincronizados: ${result.products} produto(s) e assinatura.`);
+      await queryClient.invalidateQueries({ queryKey: ["admin-products"] });
+      await queryClient.invalidateQueries({ queryKey: ["products"] });
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Não foi possível sincronizar os preços.",
+      );
+    } finally {
+      setSyncing(false);
+    }
+  }
+
   async function save() {
     if (form.enabled && !isMercadoPagoConfigured(form)) {
       toast.error(
@@ -105,11 +142,26 @@ export function AdminMercadoPago() {
       );
       return;
     }
+    const next = {
+      ...form,
+      subscriptionPriceCents: toCents(subscriptionPrice),
+      notificationUrl: webhookUrl,
+    };
     setSaving(true);
     try {
-      await savePaymentSettings({ ...form, notificationUrl: webhookUrl });
-      toast.success("Configuração do Mercado Pago salva.");
+      await savePaymentSettings(next);
+      if (next.enabled) {
+        try {
+          await syncMercadoPagoPrices({ kind: "subscription" });
+          toast.success("Configuração salva e preço da assinatura sincronizado.");
+        } catch {
+          toast.warning("Configuração salva, mas falhou ao sincronizar o preço no Mercado Pago.");
+        }
+      } else {
+        toast.success("Configuração do Mercado Pago salva.");
+      }
       await queryClient.invalidateQueries({ queryKey: paymentSettingsKey });
+      await queryClient.invalidateQueries({ queryKey: subscriptionPriceKey });
     } catch {
       toast.error("Não foi possível salvar a configuração.");
     } finally {
@@ -118,7 +170,7 @@ export function AdminMercadoPago() {
   }
 
   const configured = isMercadoPagoConfigured(form);
-  const disabled = isLoading || saving;
+  const disabled = isLoading || saving || syncing;
 
   return (
     <section className="rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-6">
@@ -254,6 +306,17 @@ export function AdminMercadoPago() {
               />
             </div>
             <div className="space-y-2">
+              <Label htmlFor="mp-subscription-price">Preço da assinatura (R$)</Label>
+              <Input
+                id="mp-subscription-price"
+                value={subscriptionPrice}
+                placeholder="297,00"
+                inputMode="decimal"
+                disabled={disabled}
+                onChange={(event) => setSubscriptionPrice(event.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
               <Label htmlFor="mp-pix">Chave Pix (opcional)</Label>
               <Input
                 id="mp-pix"
@@ -295,7 +358,16 @@ export function AdminMercadoPago() {
             </p>
           </div>
 
-          <div className="mt-6 flex justify-end">
+          <div className="mt-6 flex flex-wrap justify-end gap-3">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => void syncAll()}
+              disabled={disabled || !form.enabled}
+            >
+              {syncing ? <Loader2 className="animate-spin" /> : <RefreshCw className="size-4" />}
+              Sincronizar preços
+            </Button>
             <Button type="button" variant="hero" onClick={() => void save()} disabled={disabled}>
               {saving ? <Loader2 className="animate-spin" /> : <Save className="size-4" />}
               Salvar configuração

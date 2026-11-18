@@ -23,6 +23,7 @@ describe("payment settings", () => {
       webhook_secret: "secret",
       user_id: "123",
       site_id: "MLB",
+      subscription_price_cents: 34900,
       updated_at: "2026-01-01T00:00:00Z",
     });
 
@@ -30,6 +31,7 @@ describe("payment settings", () => {
     expect(settings.sandbox).toBe(false);
     expect(settings.userId).toBe("123");
     expect(settings.siteId).toBe("MLB");
+    expect(settings.subscriptionPriceCents).toBe(34900);
     expect(settings.updatedAt).toBe("2026-01-01T00:00:00Z");
   });
 
@@ -50,6 +52,7 @@ describe("payment settings", () => {
     expect(row["public_key"]).toBe("TEST-key");
     expect(row["site_id"]).toBe("MLB");
     expect(row["statement_descriptor"]).toBe("Startex");
+    expect(row["subscription_price_cents"]).toBe(29700);
     expect(row["provider"]).toBe("mercadopago");
   });
 

@@ -43,6 +43,7 @@ import { AdminSponsorCards } from "@/components/marketplace/AdminSponsorCards";
 import { supabase } from "@/integrations/supabase/client";
 import { useMember } from "@/hooks/use-member";
 import { formatBRL, formatDateSP, formatDateTimeSP } from "@/lib/format";
+import { syncMercadoPagoPrices } from "@/lib/mercadopago-sync";
 import { SESSION_TYPE_LABEL, sessionTypeLabel, type LiveSession, type SessionType } from "@/lib/sessions";
 import { PRODUCT_TYPE_LABEL, effectivePriceCents, productTypeLabel, type Product, type ProductType } from "@/lib/products";
 import { youtubeThumbnail } from "@/lib/lessons";
@@ -772,10 +773,20 @@ function AdminProducts() {
     const query = editing
       ? (supabase as any).from("products").update(payload).eq("id", editing.id)
       : (supabase as any).from("products").insert(payload);
-    const { error } = await query;
+    const { data: saved, error } = await query.select("id").maybeSingle();
+    if (error) { setSaving(false); toast.error("Erro ao salvar produto. Verifique se a tabela 'products' existe."); return; }
+    if (!saved?.id) {
+      setSaving(false);
+      toast.error("Produto salvo, mas não foi possível identificar o ID para sincronizar.");
+      return;
+    }
+    try {
+      await syncMercadoPagoPrices({ kind: "product", productId: saved.id as string });
+      toast.success(editing ? "Produto atualizado e preço sincronizado no Mercado Pago." : "Produto criado e preço sincronizado no Mercado Pago.");
+    } catch {
+      toast.warning("Produto salvo, mas o preço não foi sincronizado. Use a aba Mercado Pago para tentar novamente.");
+    }
     setSaving(false);
-    if (error) { toast.error("Erro ao salvar produto. Verifique se a tabela 'products' existe."); return; }
-    toast.success(editing ? "Produto atualizado." : "Produto criado.");
     setOpen(false);
     qc.invalidateQueries({ queryKey: ["admin-products"] });
     qc.invalidateQueries({ queryKey: ["products"] });
@@ -821,6 +832,7 @@ function AdminProducts() {
                   <p className="font-semibold">{p.name}</p>
                   <p className="text-sm text-muted-foreground">{formatBRL(p.price_cents)} {p.member_price_cents != null ? `(assinante ${formatBRL(p.member_price_cents)})` : ""}</p>
                   <Badge variant={p.active ? "default" : "secondary"} className="mt-2">{p.active ? "Ativo" : "Inativo"}</Badge>
+                  {p.mercadopago_preference_id && <Badge variant="outline" className="mt-2 ml-2">MP sincronizado</Badge>}
                 </div>
                 <div className="flex gap-1">
                   <Button size="icon" variant="ghost" onClick={() => openEdit(p)}><Pencil className="size-4" /></Button>

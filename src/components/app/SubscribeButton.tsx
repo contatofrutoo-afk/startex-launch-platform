@@ -10,13 +10,18 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { SUBSCRIPTION_PRICE_CENTS, formatBRL } from "@/lib/format";
+import { formatBRL } from "@/lib/format";
+import { useSubscriptionPriceCents } from "@/hooks/use-subscription-price";
 import { getPaymentAdapter } from "@/lib/payments";
 
-export function SubscribeButton({ size = "default", className }: Pick<ButtonProps, "size" | "className">) {
+export function SubscribeButton({
+  size = "default",
+  className,
+}: Pick<ButtonProps, "size" | "className">) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const price = formatBRL(SUBSCRIPTION_PRICE_CENTS, { compact: true });
+  const priceCents = useSubscriptionPriceCents();
+  const price = formatBRL(priceCents, { compact: true });
 
   async function startCheckout() {
     setLoading(true);
@@ -41,7 +46,13 @@ export function SubscribeButton({ size = "default", className }: Pick<ButtonProp
 
   return (
     <>
-      <Button variant="hero" size={size} className={className} onClick={startCheckout} disabled={loading}>
+      <Button
+        variant="hero"
+        size={size}
+        className={className}
+        onClick={startCheckout}
+        disabled={loading}
+      >
         <Lock /> {loading ? "Abrindo pagamento..." : `Assinar por ${price}/mês`}
       </Button>
       <Dialog open={open} onOpenChange={setOpen}>
@@ -49,12 +60,16 @@ export function SubscribeButton({ size = "default", className }: Pick<ButtonProp
           <DialogHeader>
             <DialogTitle>Assinatura Startex — {price}/mês</DialogTitle>
             <DialogDescription>
-              Pagamento online via Stripe (modo teste) ainda não configurado neste ambiente. A arquitetura já está preparada (checkout, webhooks, portal). Enquanto isso, a equipe Startex pode liberar seu acesso manualmente.
+              Pagamento online via Stripe (modo teste) ainda não configurado neste ambiente. A
+              arquitetura já está preparada (checkout, webhooks, portal). Enquanto isso, a equipe
+              Startex pode liberar seu acesso manualmente.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button asChild variant="outline">
-              <a href="mailto:contato@startex.com.br?subject=Quero%20assinar%20a%20Startex">Falar com a equipe</a>
+              <a href="mailto:contato@startex.com.br?subject=Quero%20assinar%20a%20Startex">
+                Falar com a equipe
+              </a>
             </Button>
             <Button onClick={() => setOpen(false)}>Entendi</Button>
           </DialogFooter>

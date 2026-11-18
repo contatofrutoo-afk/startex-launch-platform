@@ -20,6 +20,7 @@ import {
 import { SiteHeader } from "@/components/site/SiteHeader";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { SUBSCRIPTION_PRICE_CENTS, formatBRL } from "@/lib/format";
+import { useSubscriptionPriceCents } from "@/hooks/use-subscription-price";
 import hero from "@/assets/hero-empreendedora.jpg";
 
 const PRICE = formatBRL(SUBSCRIPTION_PRICE_CENTS, { compact: true });
@@ -35,7 +36,8 @@ export const Route = createFileRoute("/")({
       { property: "og:title", content: "Startex — Network de Empreendedores" },
       {
         property: "og:description",
-        content: "Aulas gravadas, lives, Hot Seats e ferramentas práticas para donos de pequenos negócios e MEIs.",
+        content:
+          "Aulas gravadas, lives, Hot Seats e ferramentas práticas para donos de pequenos negócios e MEIs.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -67,10 +69,14 @@ const FEATURES = [
   },
 ];
 
-const STEPS = [
+const STEPS = (price: string) => [
   { icon: UserPlus, title: "Cadastre-se", text: "Crie sua conta em menos de um minuto." },
-  { icon: CreditCard, title: "Assine", text: `Assinatura mensal de ${PRICE}, sem fidelidade.` },
-  { icon: PlayCircle, title: "Comece a assistir", text: "Acesse as trilhas, a agenda de lives e a loja." },
+  { icon: CreditCard, title: "Assine", text: `Assinatura mensal de ${price}, sem fidelidade.` },
+  {
+    icon: PlayCircle,
+    title: "Comece a assistir",
+    text: "Acesse as trilhas, a agenda de lives e a loja.",
+  },
 ];
 
 const INCLUDED = [
@@ -88,7 +94,7 @@ const FAQ = [
   },
   {
     q: "Como cancelo a assinatura?",
-    a: "Você pode cancelar quando quiser pela área \"Minha conta\". O acesso continua até o fim do período já pago e não há multa nem fidelidade.",
+    a: 'Você pode cancelar quando quiser pela área "Minha conta". O acesso continua até o fim do período já pago e não há multa nem fidelidade.',
   },
   {
     q: "Quais são as formas de pagamento?",
@@ -100,11 +106,13 @@ const FAQ = [
   },
   {
     q: "Como acesso a loja?",
-    a: "Pelo menu da área de membros, em \"Loja\". Qualquer pessoa cadastrada pode comprar; assinantes podem ter preço especial. Os itens comprados ficam em \"Meus produtos\" para baixar ou abrir.",
+    a: 'Pelo menu da área de membros, em "Loja". Qualquer pessoa cadastrada pode comprar; assinantes podem ter preço especial. Os itens comprados ficam em "Meus produtos" para baixar ou abrir.',
   },
 ];
 
 function SalesPage() {
+  const priceCents = useSubscriptionPriceCents();
+  const price = formatBRL(priceCents, { compact: true });
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader />
@@ -126,7 +134,8 @@ function SalesPage() {
               Área de membros para empreendedores
             </span>
             <h1 className="text-4xl font-extrabold leading-[1.05] sm:text-5xl lg:text-6xl">
-              Organize e faça o seu negócio <span className="text-gradient-brand">crescer</span>, no seu ritmo.
+              Organize e faça o seu negócio <span className="text-gradient-brand">crescer</span>, no
+              seu ritmo.
             </h1>
             <p className="max-w-xl text-lg text-muted-foreground">
               Aulas gravadas, lives de tira-dúvidas, Hot Seats e ferramentas práticas para donos de
@@ -137,7 +146,7 @@ function SalesPage() {
                 <Link to="/cadastro">Quero entrar</Link>
               </Button>
               <span className="text-sm text-muted-foreground">
-                {PRICE}/mês · cancele quando quiser
+                {price}/mês · cancele quando quiser
               </span>
             </div>
           </div>
@@ -168,9 +177,11 @@ function SalesPage() {
         <div className="mx-auto max-w-6xl px-4 py-20 sm:px-6">
           <h2 className="text-3xl font-bold sm:text-4xl">Como funciona</h2>
           <ol className="mt-10 grid gap-6 md:grid-cols-3">
-            {STEPS.map(({ icon: Icon, title, text }, i) => (
+            {STEPS(price).map(({ icon: Icon, title, text }, i) => (
               <li key={title} className="flex gap-4">
-                <span className="font-display text-5xl font-extrabold text-primary/30">{i + 1}</span>
+                <span className="font-display text-5xl font-extrabold text-primary/30">
+                  {i + 1}
+                </span>
                 <div>
                   <div className="flex items-center gap-2">
                     <Icon className="size-5 text-primary" />
@@ -220,11 +231,15 @@ function SalesPage() {
       <section className="mx-auto max-w-6xl px-4 pb-20 sm:px-6" id="preco">
         <div className="relative mx-auto max-w-lg overflow-hidden rounded-3xl border border-primary/40 bg-card p-8 shadow-glow sm:p-10">
           <div className="absolute inset-x-0 top-0 h-1 bg-gradient-brand" />
-          <p className="text-sm font-semibold uppercase tracking-wider text-primary">Assinatura Startex</p>
-          <p className="mt-4 font-display text-5xl font-extrabold">
-            {PRICE} <span className="text-lg font-medium text-muted-foreground">por mês</span>
+          <p className="text-sm font-semibold uppercase tracking-wider text-primary">
+            Assinatura Startex
           </p>
-          <p className="mt-2 text-sm text-muted-foreground">Cobrança recorrente mensal. Cancele quando quiser.</p>
+          <p className="mt-4 font-display text-5xl font-extrabold">
+            {price} <span className="text-lg font-medium text-muted-foreground">por mês</span>
+          </p>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Cobrança recorrente mensal. Cancele quando quiser.
+          </p>
           <ul className="mt-8 space-y-3">
             {INCLUDED.map((t) => (
               <li key={t} className="flex gap-3">
@@ -248,7 +263,9 @@ function SalesPage() {
           <Accordion type="single" collapsible className="mt-8">
             {FAQ.map(({ q, a }) => (
               <AccordionItem key={q} value={q}>
-                <AccordionTrigger className="text-left text-base font-semibold">{q}</AccordionTrigger>
+                <AccordionTrigger className="text-left text-base font-semibold">
+                  {q}
+                </AccordionTrigger>
                 <AccordionContent className="text-muted-foreground">{a}</AccordionContent>
               </AccordionItem>
             ))}
@@ -262,7 +279,8 @@ function SalesPage() {
           Pronto para aprender com quem também empreende?
         </h2>
         <p className="mx-auto mt-4 max-w-xl text-muted-foreground">
-          Crie sua conta agora e conheça as trilhas. Algumas aulas de amostra são liberadas para todos os cadastrados.
+          Crie sua conta agora e conheça as trilhas. Algumas aulas de amostra são liberadas para
+          todos os cadastrados.
         </p>
         <Button asChild variant="hero" size="lg" className="mt-8">
           <Link to="/cadastro">Quero entrar</Link>
