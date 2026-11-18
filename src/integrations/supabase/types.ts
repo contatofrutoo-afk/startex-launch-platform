@@ -256,6 +256,51 @@ export type Database = {
         }
         Relationships: []
       }
+      service_cards: {
+        Row: {
+          avatar_url: string | null
+          cidade: string
+          contato: string
+          created_at: string
+          descricao: string
+          estado: string
+          id: string
+          nome: string
+          patrocinado: boolean
+          servico: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          cidade?: string
+          contato?: string
+          created_at?: string
+          descricao?: string
+          estado?: string
+          id?: string
+          nome?: string
+          patrocinado?: boolean
+          servico?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          cidade?: string
+          contato?: string
+          created_at?: string
+          descricao?: string
+          estado?: string
+          id?: string
+          nome?: string
+          patrocinado?: boolean
+          servico?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       sessions: {
         Row: {
           created_at: string
@@ -390,7 +435,22 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      marketplace_cards: {
+        Row: {
+          avatar_url: string | null
+          cidade: string | null
+          contato: string | null
+          created_at: string | null
+          descricao: string | null
+          estado: string | null
+          id: string | null
+          nome: string | null
+          patrocinado: boolean | null
+          servico: string | null
+          user_id: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       has_active_access: { Args: { _user_id: string }; Returns: boolean }
