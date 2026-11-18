@@ -61,7 +61,11 @@ function EntrarPage() {
       footer={
         <>
           Ainda não tem conta?{" "}
-          <Link to="/cadastro" className="font-semibold text-primary hover:underline">
+          <Link
+            to="/cadastro"
+            search={redirect ? { redirect } : {}}
+            className="font-semibold text-primary hover:underline"
+          >
             Cadastrar
           </Link>
         </>

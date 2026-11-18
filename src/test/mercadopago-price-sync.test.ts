@@ -1,9 +1,11 @@
 import { describe, expect, it } from "vitest";
 import {
   buildProductPreference,
+  buildSubscriptionCheckoutPayload,
   buildSubscriptionPlanPayload,
   centsToAmount,
 } from "../../supabase/functions/_shared/mercadopago-pricing";
+import { getPaymentAdapter } from "@/lib/payments";
 
 describe("mercado pago price sync", () => {
   it("converts cents to reais", () => {
@@ -46,5 +48,34 @@ describe("mercado pago price sync", () => {
     expect(payload.auto_recurring.transaction_amount).toBe(297);
     expect(payload.auto_recurring.frequency).toBe(1);
     expect(payload.auto_recurring.frequency_type).toBe("months");
+  });
+
+  it("usa o Mercado Pago como provedor de pagamento", () => {
+    expect(getPaymentAdapter().provider).toBe("mercadopago");
+  });
+
+  it("monta o checkout da assinatura com plano, pagador e referência do usuário", () => {
+    const payload = buildSubscriptionCheckoutPayload({
+      planId: "plan-123",
+      reason: "Assinatura Startex",
+      payerEmail: "aluno@exemplo.com",
+      payerName: "Maria Silva",
+      externalReference: "subscription:user-123",
+      backUrl: "https://startex.com.br/trilhas?assinatura=ok",
+      notificationUrl: "https://app.supabase.co/functions/v1/mercadopago-webhook",
+    }) as {
+      plan_id: string;
+      payer: { email: string; name: string };
+      external_reference: string;
+      back_url: string;
+      notification_url: string;
+    };
+
+    expect(payload.plan_id).toBe("plan-123");
+    expect(payload.payer.email).toBe("aluno@exemplo.com");
+    expect(payload.payer.name).toBe("Maria Silva");
+    expect(payload.external_reference).toBe("subscription:user-123");
+    expect(payload.back_url).toContain("/trilhas?assinatura=ok");
+    expect(payload.notification_url).toContain("mercadopago-webhook");
   });
 });

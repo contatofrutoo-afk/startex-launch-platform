@@ -19,8 +19,7 @@ export interface PaymentAdapter {
   ): Promise<{ url: string } | { unavailable: true; message: string }>;
 }
 
-/** Arquitetura pronta para trocar/adicionar provedor. Stripe é o padrão (modo teste). */
-export const STRIPE_PRICE_SUBSCRIPTION_BRL_297 = "price_startex_297_brl_monthly"; // configurar no Stripe/Lovable Secrets
+export const STRIPE_PRICE_SUBSCRIPTION_BRL_297 = "price_startex_297_brl_monthly";
 
 export function paymentsConfigured(): boolean {
   return import.meta.env.MODE === "demo" || Boolean(import.meta.env["VITE_STRIPE_PUBLISHABLE_KEY"]);
@@ -58,6 +57,26 @@ export const stripeAdapter: PaymentAdapter = {
   },
 };
 
+export const mercadopagoAdapter: PaymentAdapter = {
+  provider: "mercadopago",
+  async createCheckout(req) {
+    const { supabase } = await import("@/integrations/supabase/client");
+    const { data, error } = await supabase.functions.invoke("mercadopago-checkout", { body: req });
+    if (error || !data?.url)
+      return {
+        unavailable: true,
+        message: error?.message ?? "Não foi possível iniciar o pagamento no Mercado Pago.",
+      };
+    return { url: data.url as string };
+  },
+  async openCustomerPortal() {
+    return {
+      unavailable: true,
+      message: "Para alterar ou cancelar sua assinatura, fale com a equipe Startex.",
+    };
+  },
+};
+
 export function getPaymentAdapter(): PaymentAdapter {
-  return stripeAdapter; // trocar aqui para adicionar Pix/outro provedor
+  return mercadopagoAdapter;
 }

@@ -1425,7 +1425,7 @@ const functions = {
   async invoke(name: string, options?: { body?: any }) {
     const body = options?.body ?? {};
 
-    if (name === "create-checkout") {
+    if (name === "create-checkout" || name === "mercadopago-checkout") {
       if (body["kind"] === "product" && body["productId"]) {
         const product = (db["products"] ?? []).find((p) => p["id"] === body["productId"]);
         if (product) {

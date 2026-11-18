@@ -167,7 +167,7 @@ function ProdutoPage() {
             </p>
           )}
           <p className="mt-4 text-xs text-muted-foreground">
-            Pagamentos via Stripe (modo de teste) quando configurado. A arquitetura permite trocar/adicionar Pix depois.
+            Pagamentos via Mercado Pago quando configurado. Compre e receba o acesso ao item em Meus produtos.
           </p>
         </aside>
       </div>

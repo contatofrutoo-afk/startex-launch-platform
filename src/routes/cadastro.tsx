@@ -9,10 +9,12 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { AuthLayout, FieldError } from "@/components/site/AuthLayout";
 import { supabase } from "@/integrations/supabase/client";
 import { maskPhoneBR } from "@/lib/format";
-import { fieldErrors, signupSchema, PASSWORD_MIN_LENGTH } from "@/lib/validation";
+import { fieldErrors, signupSchema, PASSWORD_MIN_LENGTH, safeRedirect } from "@/lib/validation";
 import { authErrorMessage } from "@/lib/auth-errors";
 
 export const Route = createFileRoute("/cadastro")({
+  validateSearch: (search: Record<string, unknown>): { redirect?: string } =>
+    typeof search["redirect"] === "string" ? { redirect: search["redirect"] } : {},
   head: () => ({
     meta: [
       { title: "Criar conta — Startex" },
@@ -28,6 +30,7 @@ export const Route = createFileRoute("/cadastro")({
 
 function CadastroPage() {
   const navigate = useNavigate();
+  const { redirect } = Route.useSearch();
   const [form, setForm] = useState({ nome: "", email: "", telefone: "", senha: "", aceite: false });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
@@ -42,11 +45,12 @@ function CadastroPage() {
     setErrors({});
     setLoading(true);
     const { nome, email, telefone, senha } = parsed.data;
+    const destination = safeRedirect(redirect, "/trilhas");
     const { data, error } = await supabase.auth.signUp({
       email,
       password: senha,
       options: {
-        emailRedirectTo: `${window.location.origin}/trilhas`,
+        emailRedirectTo: `${window.location.origin}${destination}`,
         data: { nome, telefone, aceite_termos: "true" },
       },
     });
@@ -63,7 +67,7 @@ function CadastroPage() {
       return;
     }
     toast.success("Conta criada! Boas-vindas à Startex.");
-    navigate({ to: "/trilhas", replace: true });
+    navigate({ href: destination, replace: true });
   }
 
   return (
@@ -73,7 +77,11 @@ function CadastroPage() {
       footer={
         <>
           Já tem conta?{" "}
-          <Link to="/entrar" className="font-semibold text-primary hover:underline">
+          <Link
+            to="/entrar"
+            search={redirect ? { redirect } : {}}
+            className="font-semibold text-primary hover:underline"
+          >
             Entrar
           </Link>
         </>

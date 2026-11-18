@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import {
   CalendarClock,
   Check,
@@ -10,7 +10,6 @@ import {
   PlayCircle,
   X,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import {
   Accordion,
   AccordionContent,
@@ -19,8 +18,10 @@ import {
 } from "@/components/ui/accordion";
 import { SiteHeader } from "@/components/site/SiteHeader";
 import { SiteFooter } from "@/components/site/SiteFooter";
+import { SubscribeButton } from "@/components/app/SubscribeButton";
 import { SUBSCRIPTION_PRICE_CENTS, formatBRL } from "@/lib/format";
 import { useSubscriptionPriceCents } from "@/hooks/use-subscription-price";
+import { useResumeSubscriptionCheckout } from "@/hooks/use-subscription-checkout";
 import hero from "@/assets/hero-empreendedora.jpg";
 
 const PRICE = formatBRL(SUBSCRIPTION_PRICE_CENTS, { compact: true });
@@ -98,7 +99,7 @@ const FAQ = [
   },
   {
     q: "Quais são as formas de pagamento?",
-    a: "Cartão de crédito, com cobrança recorrente mensal. Outras formas de pagamento poderão ser adicionadas no futuro.",
+    a: "Cartão de crédito via Mercado Pago, com cobrança recorrente mensal. Outras formas de pagamento poderão ser adicionadas no futuro.",
   },
   {
     q: "Tenho direito de arrependimento?",
@@ -111,6 +112,7 @@ const FAQ = [
 ];
 
 function SalesPage() {
+  useResumeSubscriptionCheckout();
   const priceCents = useSubscriptionPriceCents();
   const price = formatBRL(priceCents, { compact: true });
   return (
@@ -142,9 +144,7 @@ function SalesPage() {
               pequenos negócios e MEIs — tudo em um só lugar.
             </p>
             <div className="flex flex-wrap items-center gap-4">
-              <Button asChild variant="hero" size="lg">
-                <Link to="/cadastro">Quero entrar</Link>
-              </Button>
+              <SubscribeButton size="lg" label="Quero entrar" />
               <span className="text-sm text-muted-foreground">
                 {price}/mês · cancele quando quiser
               </span>
@@ -247,9 +247,7 @@ function SalesPage() {
               </li>
             ))}
           </ul>
-          <Button asChild variant="hero" size="lg" className="mt-8 w-full">
-            <Link to="/cadastro">Quero entrar</Link>
-          </Button>
+          <SubscribeButton size="lg" className="mt-8 w-full" label="Quero entrar" />
           <p className="mt-3 text-center text-xs text-muted-foreground">
             Direito de arrependimento de 7 dias, conforme o CDC.
           </p>
@@ -282,9 +280,7 @@ function SalesPage() {
           Crie sua conta agora e conheça as trilhas. Algumas aulas de amostra são liberadas para
           todos os cadastrados.
         </p>
-        <Button asChild variant="hero" size="lg" className="mt-8">
-          <Link to="/cadastro">Quero entrar</Link>
-        </Button>
+        <SubscribeButton size="lg" className="mt-8" label="Quero entrar" />
       </section>
 
       <SiteFooter />

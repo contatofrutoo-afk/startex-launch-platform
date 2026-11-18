@@ -16,6 +16,16 @@ export type MercadoPagoPlanInput = {
   backUrl: string;
 };
 
+export type MercadoPagoSubscriptionCheckoutInput = {
+  planId: string;
+  reason: string;
+  payerEmail: string;
+  payerName?: string | null;
+  externalReference: string;
+  backUrl: string;
+  notificationUrl: string;
+};
+
 export function centsToAmount(cents: number): number {
   return Math.round(cents) / 100;
 }
@@ -54,5 +64,21 @@ export function buildSubscriptionPlanPayload(input: MercadoPagoPlanInput): Recor
       transaction_amount: centsToAmount(input.priceCents),
       currency_id: "BRL",
     },
+  };
+}
+
+export function buildSubscriptionCheckoutPayload(
+  input: MercadoPagoSubscriptionCheckoutInput,
+): Record<string, unknown> {
+  return {
+    plan_id: input.planId,
+    reason: input.reason,
+    payer: {
+      email: input.payerEmail,
+      ...(input.payerName ? { name: input.payerName } : {}),
+    },
+    external_reference: input.externalReference,
+    back_url: input.backUrl,
+    notification_url: input.notificationUrl || undefined,
   };
 }

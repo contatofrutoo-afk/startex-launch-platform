@@ -223,13 +223,13 @@ function MinhaContaPage() {
               {member.subscription && !member.subscription.acesso_manual && (
                 <Button variant="outline" onClick={openPortal} disabled={portalLoading}>
                   <CreditCard className="size-4" />{" "}
-                  {portalLoading ? "Abrindo..." : "Gerenciar/cancelar assinatura (portal Stripe)"}
+                  {portalLoading ? "Abrindo..." : "Gerenciar/cancelar assinatura"}
                 </Button>
               )}
             </div>
             <p className="mt-3 text-xs text-muted-foreground">
-              Cancelamento e atualização de cartão via Portal do Cliente Stripe (quando
-              configurado). Cancele quando quiser; acesso até o fim do período pago.
+              Assinatura paga via Mercado Pago. Para cancelar ou atualizar dados de pagamento,
+              fale com a equipe Startex; o acesso continua até o fim do período pago.
             </p>
           </section>
 
