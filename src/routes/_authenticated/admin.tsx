@@ -6,6 +6,7 @@ import {
   ArrowUp,
   CalendarClock,
   Clapperboard,
+  CreditCard,
   Crown,
   Download,
   ExternalLink,
@@ -37,6 +38,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
 import { PageContainer } from "@/components/app/AppShell";
+import { AdminMercadoPago } from "@/components/admin/AdminMercadoPago";
 import { AdminSponsorCards } from "@/components/marketplace/AdminSponsorCards";
 import { supabase } from "@/integrations/supabase/client";
 import { useMember } from "@/hooks/use-member";
@@ -111,15 +113,16 @@ function AdminPage() {
         <ShieldCheck className="size-7 text-primary" />
         <h1 className="text-3xl font-bold sm:text-4xl">Admin</h1>
       </div>
-      <p className="mt-2 text-muted-foreground">Gerencie aulas, trilhas, lives, produtos, alunos, vendas e destaques.</p>
+      <p className="mt-2 text-muted-foreground">Gerencie aulas, trilhas, lives, produtos, alunos, vendas, destaques e pagamentos.</p>
       <Tabs defaultValue="aulas" className="mt-8">
-        <TabsList className="grid w-full grid-cols-2 sm:w-auto sm:grid-cols-6">
+        <TabsList className="grid w-full grid-cols-2 sm:w-auto sm:grid-cols-7">
           <TabsTrigger value="aulas"><Clapperboard className="mr-2 size-4" /> Aulas</TabsTrigger>
           <TabsTrigger value="lives"><Radio className="mr-2 size-4" /> Lives</TabsTrigger>
           <TabsTrigger value="loja"><ShoppingBag className="mr-2 size-4" /> Loja</TabsTrigger>
           <TabsTrigger value="alunos"><Users className="mr-2 size-4" /> Alunos</TabsTrigger>
           <TabsTrigger value="vendas"><Download className="mr-2 size-4" /> Vendas</TabsTrigger>
           <TabsTrigger value="patrocinar"><Crown className="mr-2 size-4" /> Patrocinar cards</TabsTrigger>
+          <TabsTrigger value="mercadopago"><CreditCard className="mr-2 size-4" /> Mercado Pago</TabsTrigger>
         </TabsList>
         <TabsContent value="aulas" className="mt-6"><AdminAulas /></TabsContent>
         <TabsContent value="lives" className="mt-6"><AdminLives /></TabsContent>
@@ -127,6 +130,7 @@ function AdminPage() {
         <TabsContent value="alunos" className="mt-6"><AdminStudents /></TabsContent>
         <TabsContent value="vendas" className="mt-6"><AdminOrders /></TabsContent>
         <TabsContent value="patrocinar" className="mt-6"><AdminSponsorCards /></TabsContent>
+        <TabsContent value="mercadopago" className="mt-6"><AdminMercadoPago /></TabsContent>
       </Tabs>
     </PageContainer>
   );

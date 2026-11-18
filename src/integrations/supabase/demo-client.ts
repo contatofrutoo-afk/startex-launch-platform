@@ -746,6 +746,26 @@ const db: Record<string, Row[]> = {
       updated_at: dateFromNow(-1, 10, 0),
     },
   ],
+  payment_settings: [
+    {
+      provider: "mercadopago",
+      enabled: false,
+      sandbox: true,
+      public_key: "",
+      access_token: "",
+      webhook_secret: "",
+      user_id: "",
+      integrator_id: "",
+      site_id: "MLB",
+      subscription_plan_id: "",
+      pix_key: "",
+      statement_descriptor: "STARTEX",
+      notification_url: "",
+      created_at: minutesAgo(60),
+      updated_at: minutesAgo(60),
+      updated_by: DEMO_USER_ID,
+    },
+  ],
   community_threads: [
     {
       id: CT1,
@@ -914,6 +934,7 @@ const ID_TABLES = new Set([
   "products",
   "orders",
   "service_cards",
+  "payment_settings",
   "community_threads",
   "community_messages",
 ]);
@@ -1056,6 +1077,20 @@ function makeRow(table: string, input: Row): Row {
     if (row["contato"] === undefined) row["contato"] = "";
     if (row["avatar_url"] === undefined) row["avatar_url"] = null;
     if (row["patrocinado"] === undefined) row["patrocinado"] = false;
+  }
+  if (table === "payment_settings") {
+    if (row["enabled"] === undefined) row["enabled"] = false;
+    if (row["sandbox"] === undefined) row["sandbox"] = true;
+    if (row["public_key"] === undefined) row["public_key"] = "";
+    if (row["access_token"] === undefined) row["access_token"] = "";
+    if (row["webhook_secret"] === undefined) row["webhook_secret"] = "";
+    if (row["user_id"] === undefined) row["user_id"] = "";
+    if (row["integrator_id"] === undefined) row["integrator_id"] = "";
+    if (row["site_id"] === undefined) row["site_id"] = "MLB";
+    if (row["subscription_plan_id"] === undefined) row["subscription_plan_id"] = "";
+    if (row["pix_key"] === undefined) row["pix_key"] = "";
+    if (row["statement_descriptor"] === undefined) row["statement_descriptor"] = "STARTEX";
+    if (row["notification_url"] === undefined) row["notification_url"] = "";
   }
   if (table === "community_threads") {
     if (row["title"] === undefined) row["title"] = "";

@@ -1,0 +1,70 @@
+import { describe, expect, it } from "vitest";
+import {
+  defaultPaymentSettings,
+  isMercadoPagoConfigured,
+  mercadoPagoWebhookUrl,
+  paymentSettingsFromRow,
+  paymentSettingsToRow,
+} from "@/lib/payment-settings";
+
+describe("payment settings", () => {
+  it("monta a URL do webhook sem barras duplicadas", () => {
+    expect(mercadoPagoWebhookUrl("https://app.supabase.co/")).toBe(
+      "https://app.supabase.co/functions/v1/mercadopago-webhook",
+    );
+  });
+
+  it("converte a linha do banco para o formulário", () => {
+    const settings = paymentSettingsFromRow({
+      enabled: true,
+      sandbox: false,
+      public_key: "APP_USR-key",
+      access_token: "APP_USR-token",
+      webhook_secret: "secret",
+      user_id: "123",
+      site_id: "MLB",
+      updated_at: "2026-01-01T00:00:00Z",
+    });
+
+    expect(settings.enabled).toBe(true);
+    expect(settings.sandbox).toBe(false);
+    expect(settings.userId).toBe("123");
+    expect(settings.siteId).toBe("MLB");
+    expect(settings.updatedAt).toBe("2026-01-01T00:00:00Z");
+  });
+
+  it("usa sandbox por padrão quando a linha não existe", () => {
+    expect(paymentSettingsFromRow(null).sandbox).toBe(true);
+    expect(paymentSettingsFromRow(null).siteId).toBe("MLB");
+  });
+
+  it("normaliza os dados antes de salvar", () => {
+    const settings = defaultPaymentSettings("https://app.supabase.co");
+    const row = paymentSettingsToRow({
+      ...settings,
+      publicKey: "  TEST-key  ",
+      siteId: " mlb ",
+      statementDescriptor: " Startex ",
+    });
+
+    expect(row["public_key"]).toBe("TEST-key");
+    expect(row["site_id"]).toBe("MLB");
+    expect(row["statement_descriptor"]).toBe("Startex");
+    expect(row["provider"]).toBe("mercadopago");
+  });
+
+  it("só considera a integração configurada com todas as credenciais", () => {
+    const base = defaultPaymentSettings("https://app.supabase.co");
+    expect(isMercadoPagoConfigured(base)).toBe(false);
+
+    const ready = {
+      ...base,
+      enabled: true,
+      publicKey: "TEST-key",
+      accessToken: "TEST-token",
+      webhookSecret: "secret",
+      userId: "123",
+    };
+    expect(isMercadoPagoConfigured(ready)).toBe(true);
+  });
+});
