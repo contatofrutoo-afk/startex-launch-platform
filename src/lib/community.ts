@@ -1,7 +1,28 @@
 import { supabase } from "@/integrations/supabase/client";
 
-// A comunidade usa tabelas/view novas que ainda não estão nos tipos gerados.
-const db = supabase as any;
+type DbRow = Record<string, unknown>;
+
+type DbResponse<T> = {
+  data: T | null;
+  error: { message: string } | null;
+};
+
+type QueryBuilder = PromiseLike<DbResponse<DbRow[]>> & {
+  eq(column: string, value: unknown): QueryBuilder;
+  in(column: string, values: unknown[]): QueryBuilder;
+  order(column: string, options: { ascending: boolean }): QueryBuilder;
+};
+
+type CommunityDb = {
+  from(table: string): {
+    select(columns?: string): QueryBuilder;
+    insert(row: DbRow): PromiseLike<DbResponse<DbRow[]>>;
+    delete(): QueryBuilder;
+  };
+  rpc(name: string, args: DbRow): PromiseLike<DbResponse<unknown>>;
+};
+
+const db = supabase as unknown as CommunityDb;
 
 export type CommunityProfile = {
   id: string;
@@ -84,39 +105,39 @@ export function profileLocation(profile: CommunityProfile | null | undefined): s
   return "Localização não informada";
 }
 
-function toProfile(row: any): CommunityProfile {
+function toProfile(row: DbRow): CommunityProfile {
   return {
-    id: String(row.id),
-    nome: String(row.nome ?? "").trim() || "Membro Startex",
-    avatar_url: row.avatar_url ? String(row.avatar_url) : null,
-    cidade: String(row.cidade ?? ""),
-    estado: String(row.estado ?? ""),
+    id: String(row["id"]),
+    nome: String(row["nome"] ?? "").trim() || "Membro Startex",
+    avatar_url: row["avatar_url"] ? String(row["avatar_url"]) : null,
+    cidade: String(row["cidade"] ?? ""),
+    estado: String(row["estado"] ?? ""),
   };
 }
 
-function toMessage(row: any): CommunityMessage {
+function toMessage(row: DbRow): CommunityMessage {
   return {
-    id: String(row.id),
-    thread_id: String(row.thread_id),
-    user_id: String(row.user_id),
-    parent_id: row.parent_id ? String(row.parent_id) : null,
-    content: String(row.content ?? ""),
-    mentioned_user_ids: Array.isArray(row.mentioned_user_ids)
-      ? row.mentioned_user_ids.map((id: unknown) => String(id))
+    id: String(row["id"]),
+    thread_id: String(row["thread_id"]),
+    user_id: String(row["user_id"]),
+    parent_id: row["parent_id"] ? String(row["parent_id"]) : null,
+    content: String(row["content"] ?? ""),
+    mentioned_user_ids: Array.isArray(row["mentioned_user_ids"])
+      ? row["mentioned_user_ids"].map((id: unknown) => String(id))
       : [],
-    created_at: String(row.created_at),
+    created_at: String(row["created_at"]),
   };
 }
 
-function toThread(row: any): CommunityThread {
+function toThread(row: DbRow): CommunityThread {
   return {
-    id: String(row.id),
-    title: String(row.title ?? ""),
-    description: String(row.description ?? ""),
-    is_private: Boolean(row.is_private),
-    created_by: row.created_by ? String(row.created_by) : null,
-    created_at: String(row.created_at),
-    updated_at: String(row.updated_at ?? row.created_at),
+    id: String(row["id"]),
+    title: String(row["title"] ?? ""),
+    description: String(row["description"] ?? ""),
+    is_private: Boolean(row["is_private"]),
+    created_by: row["created_by"] ? String(row["created_by"]) : null,
+    created_at: String(row["created_at"]),
+    updated_at: String(row["updated_at"] ?? row["created_at"]),
   };
 }
 
@@ -195,8 +216,8 @@ export async function fetchCommunityThreads(
 
   const membersByThread = new Map<string, string[]>();
   for (const row of membersRes.data ?? []) {
-    const threadId = String(row.thread_id);
-    const userId = String(row.user_id);
+    const threadId = String(row["thread_id"]);
+    const userId = String(row["user_id"]);
     const list = membersByThread.get(threadId) ?? [];
     if (!list.includes(userId)) list.push(userId);
     membersByThread.set(threadId, list);
@@ -254,9 +275,9 @@ export async function fetchCommunityMessages(
   if (likesRes.error) throw likesRes.error;
   if (profilesRes.error) throw profilesRes.error;
 
-  const likes: CommunityLike[] = (likesRes.data ?? []).map((row: any) => ({
-    message_id: String(row.message_id),
-    user_id: String(row.user_id),
+  const likes: CommunityLike[] = (likesRes.data ?? []).map((row: DbRow) => ({
+    message_id: String(row["message_id"]),
+    user_id: String(row["user_id"]),
   }));
   const profiles: CommunityProfile[] = (profilesRes.data ?? []).map(toProfile);
 

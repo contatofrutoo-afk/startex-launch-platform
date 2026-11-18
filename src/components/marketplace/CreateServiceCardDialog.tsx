@@ -295,7 +295,7 @@ export function CreateServiceCardDialog({ open, onOpenChange, member, existingCa
                 onChange={(event) => setField("descricao", event.target.value)}
                 rows={4}
                 maxLength={600}
-                placeholder="Conte o que você faz e como pode ajudar outras empreendedoras."
+                placeholder="Conte o que você faz e como pode ajudar outros empreendedore(as)."
               />
               <FieldError message={errors["descricao"]} />
             </div>

@@ -324,21 +324,21 @@ values
   (
     'f2000000-0000-4000-8000-000000000001',
     'Mural de boas-vindas',
-    'Apresente-se para a comunidade e conheça outras empreendedoras.',
+    'Apresente-se para a comunidade e conheça outros empreendedore(as).',
     false,
     now() - interval '4 days'
   ),
   (
     'f2000000-0000-4000-8000-000000000002',
     'Dúvidas e desafios do negócio',
-    'Compartilhe seus desafios e ajude outras membros com soluções práticas.',
+    'Compartilhe seus desafios e ajude outros membros com soluções práticas.',
     false,
     now() - interval '3 days'
   ),
   (
     'f2000000-0000-4000-8000-000000000003',
     'Parcerias e indicações',
-    'Encontre parceiras, fornecedoras e clientes para o seu negócio.',
+    'Encontre parceire(as), fornecedore(as) e clientes para o seu negócio.',
     false,
     now() - interval '2 days'
   ),
@@ -349,7 +349,9 @@ values
     false,
     now() - interval '1 day'
   )
-on conflict (id) do nothing;
+on conflict (id) do update set
+  title = excluded.title,
+  description = excluded.description;
 
 -- ========== 8. Bucket de avatares ==========
 insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)

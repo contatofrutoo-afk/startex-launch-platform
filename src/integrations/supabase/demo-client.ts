@@ -750,7 +750,7 @@ const db: Record<string, Row[]> = {
     {
       id: CT1,
       title: "Mural de boas-vindas",
-      description: "Apresente-se para a comunidade e conheça outras empreendedoras.",
+      description: "Apresente-se para a comunidade e conheça outros empreendedore(as).",
       is_private: false,
       created_by: null,
       created_at: dateFromNow(-4, 8, 0),
@@ -759,7 +759,7 @@ const db: Record<string, Row[]> = {
     {
       id: CT2,
       title: "Dúvidas e desafios do negócio",
-      description: "Compartilhe seus desafios e ajude outras membros com soluções práticas.",
+      description: "Compartilhe seus desafios e ajude outros membros com soluções práticas.",
       is_private: false,
       created_by: null,
       created_at: dateFromNow(-3, 8, 0),
@@ -768,7 +768,7 @@ const db: Record<string, Row[]> = {
     {
       id: CT3,
       title: "Parcerias e indicações",
-      description: "Encontre parceiras, fornecedoras e clientes para o seu negócio.",
+      description: "Encontre parceire(as), fornecedore(as) e clientes para o seu negócio.",
       is_private: false,
       created_by: null,
       created_at: dateFromNow(-2, 8, 0),
@@ -843,7 +843,7 @@ const db: Record<string, Row[]> = {
       user_id: DEMO_USER_ID,
       parent_id: null,
       content:
-        "Estou buscando parceiras para uma ação conjunta de conteúdo em novembro. Alguém topa?",
+        "Estou buscando parceire(as) para uma ação conjunta de conteúdo em novembro. Alguém topa?",
       mentioned_user_ids: [],
       created_at: minutesAgo(1600),
     },

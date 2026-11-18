@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { Globe2, Heart, Lock, MessageCircle, Plus, Users } from "lucide-react";
@@ -51,7 +51,7 @@ export const Route = createFileRoute("/_authenticated/comunidade")({
       { property: "og:title", content: "Comunidade — Startex" },
       {
         property: "og:description",
-        content: "O ponto de encontro das empreendedoras da Startex.",
+        content: "O ponto de encontro de empreendedore(as) da Startex.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -79,8 +79,11 @@ function ComunidadePage() {
   const [submitting, setSubmitting] = useState(false);
   const [likePending, setLikePending] = useState<Record<string, boolean>>({});
 
-  const generalThreads = threadsData?.general ?? [];
-  const privateThreads = threadsData?.privateThreads ?? [];
+  const generalThreads = useMemo(() => threadsData?.general ?? [], [threadsData?.general]);
+  const privateThreads = useMemo(
+    () => threadsData?.privateThreads ?? [],
+    [threadsData?.privateThreads],
+  );
   const profiles = threadsData?.profiles ?? [];
   const loading = memberLoading || threadsLoading;
 
@@ -245,10 +248,10 @@ function ComunidadePage() {
             <Heart className="size-3.5 fill-current" /> Comunidade Startex
           </span>
           <h1 className="mt-4 font-display text-3xl font-bold sm:text-4xl">
-            O ponto de encontro das empreendedoras
+            O ponto de encontro de empreendedore(as)
           </h1>
           <p className="mt-2 max-w-2xl text-sm text-white/85 sm:text-base">
-            Converse com outras membros, compartilhe ideias, tire dúvidas e faça novas parcerias. Um
+            Converse com outros membros, compartilhe ideias, tire dúvidas e faça novas parcerias. Um
             espaço feito para a nossa comunidade.
           </p>
           <div className="mt-5 flex flex-wrap items-center gap-3 text-xs text-white/80">
@@ -468,7 +471,7 @@ function ComunidadePage() {
                     <MessageCircle className="mx-auto size-8 text-primary" />
                     <p className="mt-2 text-sm font-semibold">Nenhum comentário ainda</p>
                     <p className="mt-1 text-xs text-muted-foreground">
-                      Seja a primeira a comentar neste espaço.
+                      Seja a primeira pessoa a comentar neste espaço.
                     </p>
                   </div>
                 ) : (
