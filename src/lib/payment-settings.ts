@@ -58,7 +58,7 @@ export function paymentSettingsFromRow(row: PaymentSettingsRow | null): PaymentS
   return {
     provider: MERCADO_PAGO_PROVIDER,
     enabled: row?.["enabled"] === true,
-    sandbox: row?.["sandbox"] !== false,
+    sandbox: false,
     publicKey: asText(row?.["public_key"]),
     accessToken: asText(row?.["access_token"]),
     webhookSecret: asText(row?.["webhook_secret"]),
@@ -81,7 +81,7 @@ export function paymentSettingsToRow(settings: PaymentSettings): PaymentSettings
   return {
     provider: MERCADO_PAGO_PROVIDER,
     enabled: settings.enabled,
-    sandbox: settings.sandbox,
+    sandbox: false,
     public_key: settings.publicKey.trim(),
     access_token: settings.accessToken.trim(),
     webhook_secret: settings.webhookSecret.trim(),
@@ -100,7 +100,7 @@ export function defaultPaymentSettings(baseUrl = ""): PaymentSettings {
   return {
     provider: MERCADO_PAGO_PROVIDER,
     enabled: false,
-    sandbox: true,
+    sandbox: false,
     publicKey: "",
     accessToken: "",
     webhookSecret: "",

@@ -3,12 +3,10 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import {
   buildProductPreference,
   buildSubscriptionCheckoutPayload,
-  isMercadoPagoTestToken,
 } from "../_shared/mercadopago-pricing.ts";
 
 type SettingsRow = {
   enabled: boolean;
-  sandbox: boolean;
   access_token: string;
   notification_url: string;
   statement_descriptor: string;
@@ -25,7 +23,6 @@ type ProductRow = {
 
 type CheckoutResponse = {
   init_point?: string;
-  sandbox_init_point?: string;
 };
 
 class HttpError extends Error {
@@ -113,10 +110,8 @@ function appUrl(value: string | undefined, fallbackPath: string, origin: string)
   }
 }
 
-function checkoutUrl(body: CheckoutResponse, sandbox: boolean): string {
-  const url = sandbox
-    ? (body.sandbox_init_point ?? body.init_point)
-    : (body.init_point ?? body.sandbox_init_point);
+function checkoutUrl(body: CheckoutResponse): string {
+  const url = body.init_point;
   if (!url) throw new HttpError("Mercado Pago não retornou a URL de pagamento.", 502);
   return url;
 }
@@ -142,7 +137,6 @@ serve(async (req) => {
       throw new HttpError("Access Token do Mercado Pago não configurado.", 400);
     const notificationUrl =
       settings.notification_url || `${origin}/functions/v1/mercadopago-webhook`;
-    const testMode = isMercadoPagoTestToken(settings.access_token);
 
     if (body.kind === "subscription") {
       if (!settings.subscription_plan_id)
@@ -154,8 +148,8 @@ serve(async (req) => {
       const payload = buildSubscriptionCheckoutPayload({
         planId: settings.subscription_plan_id,
         reason: "Assinatura Startex",
-        payerEmail: testMode ? null : user.email,
-        payerName: testMode ? null : ((user.user_metadata?.["nome"] as string | undefined) ?? null),
+        payerEmail: user.email,
+        payerName: (user.user_metadata?.["nome"] as string | undefined) ?? null,
         externalReference: `subscription:${user.id}`,
         backUrl: appUrl(body.successUrl, "/trilhas?assinatura=ok", origin),
         notificationUrl,
@@ -165,7 +159,7 @@ serve(async (req) => {
         "/preapproval",
         payload,
       );
-      return json({ url: checkoutUrl(response, testMode) });
+      return json({ url: checkoutUrl(response) });
     }
 
     if (body.kind === "product") {
@@ -204,7 +198,7 @@ serve(async (req) => {
         "/checkout/preferences",
         payload,
       );
-      return json({ url: checkoutUrl(response, testMode) });
+      return json({ url: checkoutUrl(response) });
     }
 
     throw new HttpError("Operação de checkout inválida.", 400);

@@ -3,11 +3,9 @@ import type { Database } from "@/integrations/supabase/types";
 import {
   buildPendingSubscriptionPayload,
   buildProductPreference,
-  buildSubscriptionTestPreference,
   buildSubscriptionPlanPayload,
   isActiveSubscriptionStatus,
   isInactiveSubscriptionStatus,
-  isMercadoPagoTestToken,
   subscriptionPeriodEnd,
   SUBSCRIPTION_REASON,
 } from "@/lib/mercadopago-pricing";
@@ -17,7 +15,6 @@ type Admin = SupabaseClient<Database>;
 
 export type MercadoPagoSettings = {
   enabled: boolean;
-  sandbox: boolean;
   accessToken: string;
   webhookSecret: string;
   notificationUrl: string;
@@ -53,7 +50,6 @@ export async function loadMercadoPagoSettings(admin: Admin): Promise<MercadoPago
   const text = (key: string) => (typeof row[key] === "string" ? (row[key] as string).trim() : "");
   return {
     enabled: row["enabled"] === true,
-    sandbox: row["sandbox"] !== false,
     accessToken: text("access_token"),
     webhookSecret: text("webhook_secret"),
     notificationUrl: text("notification_url"),
@@ -105,12 +101,10 @@ export async function mpRequest<T>(
   return body as T;
 }
 
-type CheckoutResponse = { id?: string; init_point?: string; sandbox_init_point?: string };
+type CheckoutResponse = { id?: string; init_point?: string };
 
-function pickCheckoutUrl(body: CheckoutResponse, sandbox: boolean): string {
-  const url = sandbox
-    ? (body.sandbox_init_point ?? body.init_point)
-    : (body.init_point ?? body.sandbox_init_point);
+function pickCheckoutUrl(body: CheckoutResponse): string {
+  const url = body.init_point;
   if (!url) throw new MercadoPagoError("Mercado Pago não retornou a página de pagamento.", 502);
   return url;
 }
@@ -122,24 +116,6 @@ export async function createSubscriptionCheckout(input: {
   backUrl: string;
   cancelUrl: string;
 }): Promise<string> {
-  const testMode = input.settings.sandbox || isMercadoPagoTestToken(input.settings.accessToken);
-  if (testMode) {
-    const preference = buildSubscriptionTestPreference({
-      priceCents: input.settings.subscriptionPriceCents,
-      externalReference: `subscription:${input.userId}`,
-      notificationUrl: input.settings.notificationUrl,
-      statementDescriptor: input.settings.statementDescriptor,
-      successUrl: input.backUrl,
-      cancelUrl: input.cancelUrl,
-    });
-    const res = await mpRequest<CheckoutResponse>(
-      input.settings.accessToken,
-      "/checkout/preferences",
-      "POST",
-      preference,
-    );
-    return pickCheckoutUrl(res, true);
-  }
   const payload = buildPendingSubscriptionPayload({
     reason: SUBSCRIPTION_REASON,
     priceCents: input.settings.subscriptionPriceCents,
@@ -153,8 +129,7 @@ export async function createSubscriptionCheckout(input: {
     "POST",
     payload,
   );
-  // Assinaturas sempre usam init_point (não existe sandbox_init_point para preapproval).
-  return pickCheckoutUrl(res, false);
+  return pickCheckoutUrl(res);
 }
 
 export async function createProductCheckout(input: {
@@ -198,8 +173,7 @@ export async function createProductCheckout(input: {
     "POST",
     payload,
   );
-  const testMode = input.settings.sandbox || isMercadoPagoTestToken(input.settings.accessToken);
-  return pickCheckoutUrl(res, testMode);
+  return pickCheckoutUrl(res);
 }
 
 /** Mantém um plano de referência no Mercado Pago com o preço atual da assinatura. */

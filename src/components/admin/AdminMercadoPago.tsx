@@ -145,6 +145,7 @@ export function AdminMercadoPago() {
     );
     const next = {
       ...form,
+      sandbox: false,
       subscriptionPlanId: tokenChanged ? "" : form.subscriptionPlanId,
       subscriptionPriceCents: toCents(subscriptionPrice),
       notificationUrl: webhookUrl,
@@ -213,15 +214,6 @@ export function AdminMercadoPago() {
               />
               <Label htmlFor="mp-enabled">Integração ativa</Label>
             </div>
-            <div className="flex items-center gap-3">
-              <Switch
-                id="mp-sandbox"
-                checked={form.sandbox}
-                disabled={saving}
-                onCheckedChange={(value) => update("sandbox", value)}
-              />
-              <Label htmlFor="mp-sandbox">Modo sandbox (testes)</Label>
-            </div>
             {form.updatedAt && (
               <span className="text-xs text-muted-foreground">
                 Última alteração: {formatDateTimeSP(form.updatedAt)}
@@ -232,9 +224,8 @@ export function AdminMercadoPago() {
           <div className="mt-4 flex gap-3 rounded-xl border border-primary/20 bg-primary/5 p-4 text-sm text-muted-foreground">
             <ShieldCheck className="mt-0.5 size-5 shrink-0 text-primary" />
             <p>
-              As credenciais ficam no banco com acesso restrito a administradores. Com tokens TEST,
-              o checkout pede um usuário de teste do Mercado Pago e não envia o e-mail do aluno; use
-              tokens de produção para cobrar alunos reais.
+              As credenciais ficam no banco com acesso restrito a administradores. O checkout opera
+              sempre em modo real: use tokens de produção (APP_USR) para cobrar os alunos.
             </p>
           </div>
 
@@ -264,7 +255,7 @@ export function AdminMercadoPago() {
               <Input
                 id="mp-public"
                 value={form.publicKey}
-                placeholder={form.sandbox ? "TEST-..." : "APP_USR-..."}
+                placeholder="APP_USR-..."
                 autoComplete="off"
                 spellCheck={false}
                 disabled={disabled}
@@ -276,7 +267,7 @@ export function AdminMercadoPago() {
               id="mp-access"
               label="Access Token"
               value={form.accessToken}
-              placeholder={form.sandbox ? "TEST-..." : "APP_USR-..."}
+              placeholder="APP_USR-..."
               show={showSecrets}
               disabled={disabled}
               onChange={(value) => update("accessToken", value)}

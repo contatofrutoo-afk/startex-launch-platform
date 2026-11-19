@@ -17,7 +17,7 @@ describe("payment settings", () => {
   it("converte a linha do banco para o formulário", () => {
     const settings = paymentSettingsFromRow({
       enabled: true,
-      sandbox: false,
+      sandbox: true,
       public_key: "APP_USR-key",
       access_token: "APP_USR-token",
       webhook_secret: "secret",
@@ -35,8 +35,8 @@ describe("payment settings", () => {
     expect(settings.updatedAt).toBe("2026-01-01T00:00:00Z");
   });
 
-  it("usa sandbox por padrão quando a linha não existe", () => {
-    expect(paymentSettingsFromRow(null).sandbox).toBe(true);
+  it("usa modo real por padrão quando a linha não existe", () => {
+    expect(paymentSettingsFromRow(null).sandbox).toBe(false);
     expect(paymentSettingsFromRow(null).siteId).toBe("MLB");
   });
 
@@ -44,11 +44,13 @@ describe("payment settings", () => {
     const settings = defaultPaymentSettings("https://app.supabase.co");
     const row = paymentSettingsToRow({
       ...settings,
+      sandbox: true,
       publicKey: "  TEST-key  ",
       siteId: " mlb ",
       statementDescriptor: " Startex ",
     });
 
+    expect(row["sandbox"]).toBe(false);
     expect(row["public_key"]).toBe("TEST-key");
     expect(row["site_id"]).toBe("MLB");
     expect(row["statement_descriptor"]).toBe("Startex");

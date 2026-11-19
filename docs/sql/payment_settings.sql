@@ -3,7 +3,7 @@ begin;
 create table if not exists public.payment_settings (
   provider text primary key check (provider = 'mercadopago'),
   enabled boolean not null default false,
-  sandbox boolean not null default true,
+  sandbox boolean not null default false,
   public_key text not null default '',
   access_token text not null default '',
   webhook_secret text not null default '',
@@ -20,7 +20,8 @@ create table if not exists public.payment_settings (
 );
 
 alter table public.payment_settings add column if not exists enabled boolean not null default false;
-alter table public.payment_settings add column if not exists sandbox boolean not null default true;
+alter table public.payment_settings add column if not exists sandbox boolean not null default false;
+update public.payment_settings set sandbox = false where sandbox is distinct from false;
 alter table public.payment_settings add column if not exists public_key text not null default '';
 alter table public.payment_settings add column if not exists access_token text not null default '';
 alter table public.payment_settings add column if not exists webhook_secret text not null default '';
